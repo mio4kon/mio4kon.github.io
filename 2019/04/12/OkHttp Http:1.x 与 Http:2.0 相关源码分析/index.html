@@ -90,6 +90,13 @@
 
                         
                         <li>
+                            <a href="/tags/">Tags</a>
+                        </li>
+                        
+                    
+
+                        
+                        <li>
                             <a href="/about/">About</a>
                         </li>
                         
@@ -98,13 +105,6 @@
                         
                         <li>
                             <a href="/archives/">Archives</a>
-                        </li>
-                        
-                    
-
-                        
-                        <li>
-                            <a href="/tags/">Tags</a>
                         </li>
                         
                     
@@ -223,7 +223,7 @@
 </ol>
 <h1 id="CallServerInterceptor"><a href="#CallServerInterceptor" class="headerlink" title="CallServerInterceptor"></a>CallServerInterceptor</h1><p>主要职责：</p>
 <p>其实很简单，就是通过HttpCodec去读写Headers和Body，中间也会有关于code的一些判断</p>
-<h1 id="Http1Codec-与-Http2Codec-实现区别"><a href="#Http1Codec-与-Http2Codec-实现区别" class="headerlink" title="Http1Codec 与 Http2Codec 实现区别"></a>Http1Codec 与 Http2Codec 实现区别</h1><h2 id="writeRequestHeaders-区别"><a href="#writeRequestHeaders-区别" class="headerlink" title="writeRequestHeaders 区别"></a>writeRequestHeaders 区别</h2><p><strong>[Http1Codec.java]</strong></p>
+<h1 id="Http1Codec-与-Http2Codec-实现区别"><a href="#Http1Codec-与-Http2Codec-实现区别" class="headerlink" title="Http1Codec 与 Http2Codec 实现区别"></a>Http1Codec 与 Http2Codec 实现区别</h1><h2 id="writeRequestHeaders"><a href="#writeRequestHeaders" class="headerlink" title="writeRequestHeaders"></a>writeRequestHeaders</h2><p><strong>[Http1Codec.java]</strong></p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div></pre></td><td class="code"><pre><div class="line"><span class="meta">@Override</span> <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">writeRequestHeaders</span><span class="params">(Request request)</span> <span class="keyword">throws</span> IOException </span>&#123;</div><div class="line">    String requestLine = RequestLine.get(</div><div class="line">        request, streamAllocation.connection().route().proxy().type());</div><div class="line">    writeRequest(request.headers(), requestLine);</div><div class="line">  &#125;</div><div class="line">  </div><div class="line">   <span class="comment">/** Returns bytes of a request header for sending on an HTTP transport. */</span></div><div class="line">  <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">writeRequest</span><span class="params">(Headers headers, String requestLine)</span> <span class="keyword">throws</span> IOException </span>&#123;</div><div class="line">    <span class="keyword">if</span> (state != STATE_IDLE) <span class="keyword">throw</span> <span class="keyword">new</span> IllegalStateException(<span class="string">"state: "</span> + state);</div><div class="line">    sink.writeUtf8(requestLine).writeUtf8(<span class="string">"\r\n"</span>);</div><div class="line">    <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>, size = headers.size(); i &lt; size; i++) &#123;</div><div class="line">      sink.writeUtf8(headers.name(i))</div><div class="line">          .writeUtf8(<span class="string">": "</span>)</div><div class="line">          .writeUtf8(headers.value(i))</div><div class="line">          .writeUtf8(<span class="string">"\r\n"</span>);</div><div class="line">    &#125;</div><div class="line">    sink.writeUtf8(<span class="string">"\r\n"</span>);</div><div class="line">    state = STATE_OPEN_REQUEST_BODY;</div><div class="line">  &#125;</div></pre></td></tr></table></figure>
 <p>很直接明了的写入<code>requestLine</code> 和 <code>headers</code></p>
 <p><strong>[Http2Codec.java]</strong></p>
