@@ -1,0 +1,645 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<!-- Head tag -->
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="google-site-verification" content="xBT4GhYoi5qRD5tr338pgPM5OWHHIDR6mNg1a3euekI" />
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="android mio4kon mio">
+    <meta name="keyword"  content="">
+    <link rel="shortcut icon" href="/img/favicon.ico">
+
+    <title>
+        
+          OkHttp Http/1.x 与 Http/2.0 相关源码分析 - Mio4kon的博客 | Mio4kon&#39;s Blog
+        
+    </title>
+
+    <link rel="canonical" href="http://mio4kon.com/2019/04/12/OkHttp Http:1.x 与 Http:2.0 相关源码分析/">
+
+    <!-- Bootstrap Core CSS -->
+    <link rel="stylesheet" href="/css/bootstrap.min.css">
+
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="/css/hux-blog.min.css">
+
+    <!-- Pygments Highlight CSS -->
+    <link rel="stylesheet" href="/css/highlight.css">
+
+    <!-- Custom Fonts -->
+    <!-- <link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css" rel="stylesheet" type="text/css"> -->
+    <!-- Hux change font-awesome CDN to qiniu -->
+    <link href="https://cdn.staticfile.org/font-awesome/4.5.0/css/font-awesome.min.css" rel="stylesheet" type="text/css">
+
+
+    <!-- Hux Delete, sad but pending in China
+    <link href='http://fonts.googleapis.com/css?family=Lora:400,700,400italic,700italic' rel='stylesheet' type='text/css'>
+    <link href='http://fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800' rel='stylesheet' type='text/
+    css'>
+    -->
+
+
+    <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+        <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+        <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+
+    <!-- ga & ba script hoook -->
+    <script></script>
+</head>
+
+
+<!-- hack iOS CSS :active style -->
+<body ontouchstart="">
+
+    <!-- Navigation -->
+<nav class="navbar navbar-default navbar-custom navbar-fixed-top">
+    <div class="container-fluid">
+        <!-- Brand and toggle get grouped for better mobile display -->
+        <div class="navbar-header page-scroll">
+            <button type="button" class="navbar-toggle">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="/">Mio4kon</a>
+        </div>
+
+        <!-- Collect the nav links, forms, and other content for toggling -->
+        <!-- Known Issue, found by Hux:
+            <nav>'s height woule be hold on by its content.
+            so, when navbar scale out, the <nav> will cover tags.
+            also mask any touch event of tags, unfortunately.
+        -->
+        <div id="huxblog_navbar">
+            <div class="navbar-collapse">
+                <ul class="nav navbar-nav navbar-right">
+                    <li>
+                        <a href="/">Home</a>
+                    </li>
+
+                    
+
+                        
+                    
+
+                        
+                        <li>
+                            <a href="/about/">About</a>
+                        </li>
+                        
+                    
+
+                        
+                        <li>
+                            <a href="/archives/">Archives</a>
+                        </li>
+                        
+                    
+
+                        
+                        <li>
+                            <a href="/tags/">Tags</a>
+                        </li>
+                        
+                    
+                    
+                </ul>
+            </div>
+        </div>
+        <!-- /.navbar-collapse -->
+    </div>
+    <!-- /.container -->
+</nav>
+<script>
+    // Drop Bootstarp low-performance Navbar
+    // Use customize navbar with high-quality material design animation
+    // in high-perf jank-free CSS3 implementation
+    var $body   = document.body;
+    var $toggle = document.querySelector('.navbar-toggle');
+    var $navbar = document.querySelector('#huxblog_navbar');
+    var $collapse = document.querySelector('.navbar-collapse');
+
+    $toggle.addEventListener('click', handleMagic)
+    function handleMagic(e){
+        if ($navbar.className.indexOf('in') > 0) {
+        // CLOSE
+            $navbar.className = " ";
+            // wait until animation end.
+            setTimeout(function(){
+                // prevent frequently toggle
+                if($navbar.className.indexOf('in') < 0) {
+                    $collapse.style.height = "0px"
+                }
+            },400)
+        }else{
+        // OPEN
+            $collapse.style.height = "auto"
+            $navbar.className += " in";
+        }
+    }
+</script>
+
+
+    <!-- Main Content -->
+    
+<!-- Image to hack wechat -->
+<!-- <img src="http://mio4kon.com/img/icon_wechat.png" width="0" height="0"> -->
+<!-- <img src="{{ site.baseurl }}/{% if page.header-img %}{{ page.header-img }}{% else %}{{ site.header-img }}{% endif %}" width="0" height="0"> -->
+
+<!-- Post Header -->
+<style type="text/css">
+    header.intro-header{
+        background-image: url('/img/home-bg.jpg')
+    }
+</style>
+<header class="intro-header" >
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                <div class="post-heading">
+                    <div class="tags">
+                        
+                    </div>
+                    <h1>OkHttp Http/1.x 与 Http/2.0 相关源码分析</h1>
+                    <h2 class="subheading">源码解析</h2>
+                    <span class="meta">
+                        Posted by Mio4kon on
+                        2019-04-12
+                    </span>
+                </div>
+            </div>
+        </div>
+    </div>
+</header>
+
+<!-- Post Content -->
+<article>
+    <div class="container">
+        <div class="row">
+
+    <!-- Post Container -->
+            <div class="
+                col-lg-8 col-lg-offset-2
+                col-md-10 col-md-offset-1
+                post-container">
+
+                <blockquote>
+<p>写这篇博客的目的主要是想了解 <code>Okhttp</code> 在 <code>Http/2.0</code>上是如何实现首部压缩和多路复用的,<br>先从 Ok 主要核心的几个<code>Interceptor</code> 来开头(用到了责任链的设计模式,具体就不展开了), 下面先简单说下这几个<code>Interceptor</code>主要做了什么.</p>
+</blockquote>
+<h1 id="RetryAndFollowUpInterceptor"><a href="#RetryAndFollowUpInterceptor" class="headerlink" title="RetryAndFollowUpInterceptor"></a>RetryAndFollowUpInterceptor</h1><p>主要职责： </p>
+<ol>
+<li>判断是否可以进行重试</li>
+<li>处理返回的响应码非200情况（例如 301的时候会取header的location转成新的url，然后进行重定向请求）</li>
+<li>创建 <code>StreamAllocation</code> 对象（ConnectInterceptor用到）</li>
+</ol>
+<blockquote>
+<p>关于<code>StreamAllocation</code> 类，主要承载了 Connections，Streams，Calls</p>
+<ol>
+<li>Connections ：socket连接， 可以取消连接</li>
+<li>Streams： 建立在连接层之上的Http请求/响应对，Http1.x对应1个stream，Http2.0会对应多个stream</li>
+<li>Calls：Streams的一个逻辑序列</li>
+</ol>
+</blockquote>
+<p>这里有个小插曲，在判断是否可以重试的逻辑中有关于ConnectionShutdownException的特殊处理，主要是处理以前老版本ok的一个bug，具体可以参考：<a href="https://zhuanlan.zhihu.com/p/28958516" target="_blank" rel="external">okhttp和http 2.0相遇引发的”血案” - 知乎</a></p>
+<p><img src="media/15623407143752.jpg" alt=""></p>
+<h1 id="BridgeInterceptor"><a href="#BridgeInterceptor" class="headerlink" title="BridgeInterceptor"></a>BridgeInterceptor</h1><p>主要职责：</p>
+<ol>
+<li>修改填充Request的Header（例如”Connection：Keep-Alive”）</li>
+<li>对返回的Response做处理（save cookie，gzip解压等）</li>
+</ol>
+<h1 id="CacheInterceptor"><a href="#CacheInterceptor" class="headerlink" title="CacheInterceptor"></a>CacheInterceptor</h1><p>主要职责：<br>顾名思义，处理Response缓存的（DiskLruCache）</p>
+<h1 id="ConnectInterceptor"><a href="#ConnectInterceptor" class="headerlink" title="ConnectInterceptor"></a>ConnectInterceptor</h1><p>主要职责：</p>
+<ol>
+<li>从ConnectionPool中找到匹配的Connection，如果找到就把当前StreamAllocation添加到connection的allocations中（acquire<br>方法）</li>
+<li>判断匹配的Connection是否可用，不可用则释放该连接，并继续寻找连接池的连接</li>
+<li>找不到可复用的Connection，则创建新的Connection，并连接（执行tcp和Tls），并将该连接放入连接池</li>
+<li>通过Connection生成Stream，也就是HttpCodec（H2Connection对应Http2Codec，其他则是Http1Codec），并继续链式传递到下一个拦截器</li>
+</ol>
+<h1 id="CallServerInterceptor"><a href="#CallServerInterceptor" class="headerlink" title="CallServerInterceptor"></a>CallServerInterceptor</h1><p>主要职责：</p>
+<p>其实很简单，就是通过HttpCodec去读写Headers和Body，中间也会有关于code的一些判断</p>
+<h1 id="Http1Codec-与-Http2Codec-实现区别"><a href="#Http1Codec-与-Http2Codec-实现区别" class="headerlink" title="Http1Codec 与 Http2Codec 实现区别"></a>Http1Codec 与 Http2Codec 实现区别</h1><h2 id="writeRequestHeaders-区别"><a href="#writeRequestHeaders-区别" class="headerlink" title="writeRequestHeaders 区别"></a>writeRequestHeaders 区别</h2><p><strong>[Http1Codec.java]</strong></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div></pre></td><td class="code"><pre><div class="line"><span class="meta">@Override</span> <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">writeRequestHeaders</span><span class="params">(Request request)</span> <span class="keyword">throws</span> IOException </span>&#123;</div><div class="line">    String requestLine = RequestLine.get(</div><div class="line">        request, streamAllocation.connection().route().proxy().type());</div><div class="line">    writeRequest(request.headers(), requestLine);</div><div class="line">  &#125;</div><div class="line">  </div><div class="line">   <span class="comment">/** Returns bytes of a request header for sending on an HTTP transport. */</span></div><div class="line">  <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">writeRequest</span><span class="params">(Headers headers, String requestLine)</span> <span class="keyword">throws</span> IOException </span>&#123;</div><div class="line">    <span class="keyword">if</span> (state != STATE_IDLE) <span class="keyword">throw</span> <span class="keyword">new</span> IllegalStateException(<span class="string">"state: "</span> + state);</div><div class="line">    sink.writeUtf8(requestLine).writeUtf8(<span class="string">"\r\n"</span>);</div><div class="line">    <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>, size = headers.size(); i &lt; size; i++) &#123;</div><div class="line">      sink.writeUtf8(headers.name(i))</div><div class="line">          .writeUtf8(<span class="string">": "</span>)</div><div class="line">          .writeUtf8(headers.value(i))</div><div class="line">          .writeUtf8(<span class="string">"\r\n"</span>);</div><div class="line">    &#125;</div><div class="line">    sink.writeUtf8(<span class="string">"\r\n"</span>);</div><div class="line">    state = STATE_OPEN_REQUEST_BODY;</div><div class="line">  &#125;</div></pre></td></tr></table></figure>
+<p>很直接明了的写入<code>requestLine</code> 和 <code>headers</code></p>
+<p><strong>[Http2Codec.java]</strong></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div></pre></td><td class="code"><pre><div class="line"><span class="meta">@Override</span> <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">writeRequestHeaders</span><span class="params">(Request request)</span> <span class="keyword">throws</span> IOException </span>&#123;</div><div class="line">    <span class="keyword">if</span> (stream != <span class="keyword">null</span>) <span class="keyword">return</span>;</div><div class="line"></div><div class="line">    <span class="keyword">boolean</span> hasRequestBody = request.body() != <span class="keyword">null</span>;</div><div class="line">    List&lt;Header&gt; requestHeaders = http2HeadersList(request);</div><div class="line">    stream = connection.newStream(requestHeaders, hasRequestBody);</div><div class="line">    stream.readTimeout().timeout(chain.readTimeoutMillis(), TimeUnit.MILLISECONDS);</div><div class="line">    stream.writeTimeout().timeout(chain.writeTimeoutMillis(), TimeUnit.MILLISECONDS);</div><div class="line">  &#125;</div></pre></td></tr></table></figure>
+<p><code>stream</code> 为空的时候直接返回,说明只有第一次创建 <code>stream</code> 的时候才会去写入请求头.</p>
+<p><strong>[Http2Connection.java]</strong></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">private</span> Http2Stream <span class="title">newStream</span><span class="params">(</span></span></div><div class="line">      <span class="keyword">int</span> associatedStreamId, List&lt;Header&gt; requestHeaders, <span class="keyword">boolean</span> out) <span class="keyword">throws</span> IOException &#123;</div><div class="line">    <span class="keyword">boolean</span> outFinished = !out;</div><div class="line">    <span class="keyword">boolean</span> inFinished = <span class="keyword">false</span>;</div><div class="line">    <span class="keyword">boolean</span> flushHeaders;</div><div class="line">    Http2Stream stream;</div><div class="line">    <span class="keyword">int</span> streamId;</div><div class="line"></div><div class="line">    <span class="keyword">synchronized</span> (writer) &#123;</div><div class="line">      <span class="keyword">synchronized</span> (<span class="keyword">this</span>) &#123;</div><div class="line">        <span class="keyword">if</span> (nextStreamId &gt; Integer.MAX_VALUE / <span class="number">2</span>) &#123;</div><div class="line">          shutdown(REFUSED_STREAM);</div><div class="line">        &#125;</div><div class="line">        <span class="keyword">if</span> (shutdown) &#123;</div><div class="line">          <span class="keyword">throw</span> <span class="keyword">new</span> ConnectionShutdownException();</div><div class="line">        &#125;</div><div class="line">        <span class="comment">//生成streamId,客户端id 为奇数</span></div><div class="line">        streamId = nextStreamId;</div><div class="line">        nextStreamId += <span class="number">2</span>;</div><div class="line">        <span class="comment">//创建 stream 对象</span></div><div class="line">        stream = <span class="keyword">new</span> Http2Stream(streamId, <span class="keyword">this</span>, outFinished, inFinished, <span class="keyword">null</span>);</div><div class="line">        flushHeaders = !out || bytesLeftInWriteWindow == <span class="number">0L</span> || stream.bytesLeftInWriteWindow == <span class="number">0L</span>;</div><div class="line">        <span class="keyword">if</span> (stream.isOpen()) &#123;</div><div class="line">          streams.put(streamId, stream);</div><div class="line">        &#125;</div><div class="line">      &#125;</div><div class="line">      <span class="keyword">if</span> (associatedStreamId == <span class="number">0</span>) &#123;</div><div class="line">        writer.synStream(outFinished, streamId, associatedStreamId, requestHeaders);</div><div class="line">      &#125; <span class="keyword">else</span> <span class="keyword">if</span> (client) &#123;</div><div class="line">        <span class="keyword">throw</span> <span class="keyword">new</span> IllegalArgumentException(<span class="string">"client streams shouldn't have associated stream IDs"</span>);</div><div class="line">      &#125; <span class="keyword">else</span> &#123; <span class="comment">// HTTP/2 has a PUSH_PROMISE frame.</span></div><div class="line">        writer.pushPromise(associatedStreamId, streamId, requestHeaders);</div><div class="line">      &#125;</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="keyword">if</span> (flushHeaders) &#123;</div><div class="line">      writer.flush();</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="keyword">return</span> stream;</div><div class="line">  &#125;</div></pre></td></tr></table></figure>
+<blockquote>
+<p>说明:</p>
+<ol>
+<li>客户端的stream id 必须为奇数(<a href="https://http2.github.io/http2-spec/#HEADERS" target="_blank" rel="external">https://http2.github.io/http2-spec/#HEADERS</a>)<br>Streams are identified with an unsigned 31-bit integer. Streams initiated by a client MUST use odd-numbered stream identifiers;</li>
+<li><p>创建的 <code>stream</code> 会放到<code>H2Connection</code>的<code>streams</code>集合中去,这也说明一个 <code>H2Connection</code>是对应多个 stream 流</p>
+</li>
+<li><p>HTTP 2.0无论客户端还是服务端都可以创建 stream,前者通过发送 <code>HEADERS</code>来创建新的 stream,后者是通过 <code>PUSH_PROMISE</code>.这也是为什么最后会有两个分支 <code>writer.synStream</code> 和 <code>writer.pushPromise</code>,这里只分析客户端发送 <code>HEADERS</code> 的情况.</p>
+</li>
+</ol>
+</blockquote>
+<p><strong>[Http2Writer.java]</strong></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">synchronized</span> <span class="keyword">void</span> <span class="title">synStream</span><span class="params">(<span class="keyword">boolean</span> outFinished, <span class="keyword">int</span> streamId,</span></span></div><div class="line">      <span class="keyword">int</span> associatedStreamId, List&lt;Header&gt; headerBlock) <span class="keyword">throws</span> IOException &#123;</div><div class="line">    <span class="keyword">if</span> (closed) <span class="keyword">throw</span> <span class="keyword">new</span> IOException(<span class="string">"closed"</span>);</div><div class="line">    headers(outFinished, streamId, headerBlock);</div><div class="line">  &#125;</div><div class="line">  </div><div class="line"><span class="function"><span class="keyword">void</span> <span class="title">headers</span><span class="params">(<span class="keyword">boolean</span> outFinished, <span class="keyword">int</span> streamId, List&lt;Header&gt; headerBlock)</span> <span class="keyword">throws</span> IOException </span>&#123;</div><div class="line">    <span class="keyword">if</span> (closed) <span class="keyword">throw</span> <span class="keyword">new</span> IOException(<span class="string">"closed"</span>);</div><div class="line">    <span class="comment">//讲 headers 写入到 hpackBuffer中</span></div><div class="line">    hpackWriter.writeHeaders(headerBlock);</div><div class="line"></div><div class="line">    <span class="keyword">long</span> byteCount = hpackBuffer.size();</div><div class="line">    <span class="keyword">int</span> length = (<span class="keyword">int</span>) Math.min(maxFrameSize, byteCount);</div><div class="line">    <span class="keyword">byte</span> type = TYPE_HEADERS;</div><div class="line">    <span class="keyword">byte</span> flags = byteCount == length ? FLAG_END_HEADERS : <span class="number">0</span>;</div><div class="line">    <span class="keyword">if</span> (outFinished) flags |= FLAG_END_STREAM;</div><div class="line">    <span class="comment">//写入streamId，type，flags</span></div><div class="line">    frameHeader(streamId, length, type, flags);</div><div class="line">    <span class="comment">//写入socket流</span></div><div class="line">    sink.write(hpackBuffer, length);</div><div class="line"></div><div class="line">    <span class="keyword">if</span> (byteCount &gt; length) writeContinuationFrames(streamId, byteCount - length);</div><div class="line">  &#125;</div></pre></td></tr></table></figure>
+<blockquote>
+<p>说明:</p>
+<ol>
+<li>hpack是 H2 新增的头部压缩的特性(<a href="https://tools.ietf.org/html/rfc7541" target="_blank" rel="external">https://tools.ietf.org/html/rfc7541</a>)</li>
+<li>frame帧是 H2 的最小传输单位,所有的 frame格式在开始都必须包含固定的 9字节的头(length,type,flag,streamid),对应上面的 <code>frameHeader</code>方法,具体格式如下图</li>
+<li>最后将压缩后的 hpackBuffer 写入</li>
+</ol>
+</blockquote>
+<p><img src="media/15623454559262.jpg" alt=""></p>
+<h2 id="readResponseHeaders区别"><a href="#readResponseHeaders区别" class="headerlink" title="readResponseHeaders区别"></a>readResponseHeaders区别</h2><p><strong>[Http1Codec.java]</strong><br>具体代码不贴了,主要就是从 socket 流中读取 <code>StatusLine</code> 和 <code>headers</code></p>
+<p><strong>[Http2Codec.java]</strong></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div></pre></td><td class="code"><pre><div class="line"><span class="meta">@Override</span> <span class="keyword">public</span> Response.<span class="function">Builder <span class="title">readResponseHeaders</span><span class="params">(<span class="keyword">boolean</span> expectContinue)</span> <span class="keyword">throws</span> IOException </span>&#123;</div><div class="line">  <span class="comment">//读取 headers</span></div><div class="line">  Headers headers = stream.takeHeaders();</div><div class="line">  <span class="comment">//生成 resp builder</span></div><div class="line">  Response.Builder responseBuilder = readHttp2HeadersList(headers, protocol);</div><div class="line">  <span class="keyword">if</span> (expectContinue &amp;&amp; Internal.instance.code(responseBuilder) == HTTP_CONTINUE) &#123;</div><div class="line">    <span class="keyword">return</span> <span class="keyword">null</span>;</div><div class="line">  &#125;</div><div class="line">  <span class="keyword">return</span> responseBuilder;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p><strong>[Http2Stream.java]</strong></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">synchronized</span> Headers <span class="title">takeHeaders</span><span class="params">()</span> <span class="keyword">throws</span> IOException </span>&#123;</div><div class="line">    readTimeout.enter();</div><div class="line">    <span class="keyword">try</span> &#123;</div><div class="line">      <span class="keyword">while</span> (headersQueue.isEmpty() &amp;&amp; errorCode == <span class="keyword">null</span>) &#123;</div><div class="line">        waitForIo();</div><div class="line">      &#125;</div><div class="line">    &#125; <span class="keyword">finally</span> &#123;</div><div class="line">      readTimeout.exitAndThrowIfTimedOut();</div><div class="line">    &#125;</div><div class="line">    <span class="keyword">if</span> (!headersQueue.isEmpty()) &#123;</div><div class="line">      <span class="keyword">return</span> headersQueue.removeFirst();</div><div class="line">    &#125;</div><div class="line">    <span class="keyword">throw</span> <span class="keyword">new</span> StreamResetException(errorCode);</div><div class="line">  &#125;</div></pre></td></tr></table></figure>
+<p>发现读取 header 数据是一直等待<code>headersQueue</code>中的数据的,这也说明有其他的线程在做放入数据到<code>headersQueue</code>的操作.</p>
+<p>我们搜一下发现有两处 add 操作,一个是<code>receiveHeaders</code>方法,还有一个是在<code>Http2Stream</code>的构造方法中,但这两处实际上都收口在<code>Http2Connection$ReaderRunnable</code>的<code>header</code> 方法中.</p>
+<p><strong>[Http2Connection$ReaderRunnable]</strong></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div></pre></td><td class="code"><pre><div class="line"><span class="meta">@Override</span> <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">headers</span><span class="params">(<span class="keyword">boolean</span> inFinished, <span class="keyword">int</span> streamId, <span class="keyword">int</span> associatedStreamId,</span></span></div><div class="line">       List&lt;Header&gt; headerBlock) &#123;</div><div class="line">     ...</div><div class="line">     Http2Stream stream;</div><div class="line">     <span class="keyword">synchronized</span> (Http2Connection.<span class="keyword">this</span>) &#123;</div><div class="line">       stream = getStream(streamId);</div><div class="line"></div><div class="line">       ...</div><div class="line"></div><div class="line">         <span class="comment">// Create a stream.</span></div><div class="line">         Headers headers = Util.toHeaders(headerBlock);</div><div class="line">         <span class="keyword">final</span> Http2Stream newStream = <span class="keyword">new</span> Http2Stream(streamId, Http2Connection.<span class="keyword">this</span>,</div><div class="line">             <span class="keyword">false</span>, inFinished, headers);</div><div class="line">         lastGoodStreamId = streamId;</div><div class="line">         streams.put(streamId, newStream);</div><div class="line">         </div><div class="line">         ...</div><div class="line">     <span class="comment">// Update an existing stream.</span></div><div class="line">     stream.receiveHeaders(headerBlock);</div><div class="line">     <span class="keyword">if</span> (inFinished) stream.receiveFin();</div><div class="line">   &#125;</div></pre></td></tr></table></figure>
+<p>代码有点多,删掉一些不是特别重要的,可以发现这里实际上是对已经取得的headerBlock进行处理:创建新的<code>stream</code>,并接收 headers,此接收并非是读取 socket 流中的数据,而是将已经取到的数据放入之前提到的<code>headersQueue</code>当中.最后如果 inFinished,会唤醒等待并最终将该 stream 移出.</p>
+<p>那么到底是在什么时候读取的<code>headerBlock</code>以及什么时候执行的<code>ReaderRunnable</code>呢?</p>
+<p>第二个问题之后在分析<code>connect</code>中会提到.我们先看看第一个问题:什么时候读取的<code>headerBlock</code>? </p>
+<p>其实就是在<code>ReaderRunnable</code>的 <code>execute</code>方法当中.</p>
+<p><strong>[Http2Connection$ReaderRunnable]</strong></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div></pre></td><td class="code"><pre><div class="line">ReaderRunnable(Http2Reader reader) &#123;</div><div class="line">      <span class="keyword">super</span>(<span class="string">"OkHttp %s"</span>, hostname);</div><div class="line">      <span class="keyword">this</span>.reader = reader;</div><div class="line">    &#125;</div><div class="line">    </div><div class="line"> <span class="meta">@Override</span> <span class="function"><span class="keyword">protected</span> <span class="keyword">void</span> <span class="title">execute</span><span class="params">()</span> </span>&#123;</div><div class="line">      ErrorCode connectionErrorCode = ErrorCode.INTERNAL_ERROR;</div><div class="line">      ErrorCode streamErrorCode = ErrorCode.INTERNAL_ERROR;</div><div class="line">      <span class="keyword">try</span> &#123;</div><div class="line">        reader.readConnectionPreface(<span class="keyword">this</span>);</div><div class="line">        <span class="comment">//一直去读取下一帧数据</span></div><div class="line">        <span class="keyword">while</span> (reader.nextFrame(<span class="keyword">false</span>, <span class="keyword">this</span>)) &#123;</div><div class="line">        &#125;</div><div class="line">        connectionErrorCode = ErrorCode.NO_ERROR;</div><div class="line">        streamErrorCode = ErrorCode.CANCEL;</div><div class="line">      &#125; <span class="keyword">catch</span> (IOException e) &#123;</div><div class="line">        connectionErrorCode = ErrorCode.PROTOCOL_ERROR;</div><div class="line">        streamErrorCode = ErrorCode.PROTOCOL_ERROR;</div><div class="line">      &#125; <span class="keyword">finally</span> &#123;</div><div class="line">        <span class="keyword">try</span> &#123;</div><div class="line">          close(connectionErrorCode, streamErrorCode);</div><div class="line">        &#125; <span class="keyword">catch</span> (IOException ignored) &#123;</div><div class="line">        &#125;</div><div class="line">        Util.closeQuietly(reader);</div><div class="line">      &#125;</div><div class="line">    &#125;</div></pre></td></tr></table></figure>
+<p><strong>[Http2Reader.java]</strong></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div><div class="line">53</div><div class="line">54</div><div class="line">55</div><div class="line">56</div><div class="line">57</div><div class="line">58</div><div class="line">59</div><div class="line">60</div><div class="line">61</div><div class="line">62</div><div class="line">63</div><div class="line">64</div><div class="line">65</div><div class="line">66</div><div class="line">67</div><div class="line">68</div><div class="line">69</div><div class="line">70</div><div class="line">71</div><div class="line">72</div><div class="line">73</div><div class="line">74</div><div class="line">75</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">boolean</span> <span class="title">nextFrame</span><span class="params">(<span class="keyword">boolean</span> requireSettings, Handler handler)</span> <span class="keyword">throws</span> IOException </span>&#123;</div><div class="line">    <span class="keyword">try</span> &#123;</div><div class="line">    <span class="comment">//固定的 9 个字节</span></div><div class="line">      source.require(<span class="number">9</span>); <span class="comment">// Frame header size</span></div><div class="line">    &#125; <span class="keyword">catch</span> (IOException e) &#123;</div><div class="line">      <span class="keyword">return</span> <span class="keyword">false</span>; <span class="comment">// This might be a normal socket close.</span></div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="comment">//  0                   1                   2                   3</span></div><div class="line">    <span class="comment">//  0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1</span></div><div class="line">    <span class="comment">// +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+</span></div><div class="line">    <span class="comment">// |                 Length (24)                   |</span></div><div class="line">    <span class="comment">// +---------------+---------------+---------------+</span></div><div class="line">    <span class="comment">// |   Type (8)    |   Flags (8)   |</span></div><div class="line">    <span class="comment">// +-+-+-----------+---------------+-------------------------------+</span></div><div class="line">    <span class="comment">// |R|                 Stream Identifier (31)                      |</span></div><div class="line">    <span class="comment">// +=+=============================================================+</span></div><div class="line">    <span class="comment">// |                   Frame Payload (0...)                      ...</span></div><div class="line">    <span class="comment">// +---------------------------------------------------------------+</span></div><div class="line">    <span class="comment">//读取Length,type,flag,streamId 以及对应类型帧的内容</span></div><div class="line">    <span class="keyword">int</span> length = readMedium(source);</div><div class="line">    <span class="keyword">if</span> (length &lt; <span class="number">0</span> || length &gt; INITIAL_MAX_FRAME_SIZE) &#123;</div><div class="line">      <span class="keyword">throw</span> ioException(<span class="string">"FRAME_SIZE_ERROR: %s"</span>, length);</div><div class="line">    &#125;</div><div class="line">    <span class="keyword">byte</span> type = (<span class="keyword">byte</span>) (source.readByte() &amp; <span class="number">0xff</span>);</div><div class="line">    <span class="keyword">if</span> (requireSettings &amp;&amp; type != TYPE_SETTINGS) &#123;</div><div class="line">      <span class="keyword">throw</span> ioException(<span class="string">"Expected a SETTINGS frame but was %s"</span>, type);</div><div class="line">    &#125;</div><div class="line">    <span class="keyword">byte</span> flags = (<span class="keyword">byte</span>) (source.readByte() &amp; <span class="number">0xff</span>);</div><div class="line">    <span class="keyword">int</span> streamId = (source.readInt() &amp; <span class="number">0x7fffffff</span>); <span class="comment">// Ignore reserved bit.</span></div><div class="line">    <span class="keyword">if</span> (logger.isLoggable(FINE)) logger.fine(frameLog(<span class="keyword">true</span>, streamId, length, type, flags));</div><div class="line"></div><div class="line">    <span class="keyword">switch</span> (type) &#123;</div><div class="line">      <span class="keyword">case</span> TYPE_DATA:</div><div class="line">        readData(handler, length, flags, streamId);</div><div class="line">        <span class="keyword">break</span>;</div><div class="line"></div><div class="line">      <span class="keyword">case</span> TYPE_HEADERS:</div><div class="line">        readHeaders(handler, length, flags, streamId);</div><div class="line">        <span class="keyword">break</span>;</div><div class="line"></div><div class="line">      <span class="keyword">case</span> TYPE_PRIORITY:</div><div class="line">        readPriority(handler, length, flags, streamId);</div><div class="line">        <span class="keyword">break</span>;</div><div class="line"></div><div class="line">      <span class="keyword">case</span> TYPE_RST_STREAM:</div><div class="line">        readRstStream(handler, length, flags, streamId);</div><div class="line">        <span class="keyword">break</span>;</div><div class="line"></div><div class="line">      <span class="keyword">case</span> TYPE_SETTINGS:</div><div class="line">        readSettings(handler, length, flags, streamId);</div><div class="line">        <span class="keyword">break</span>;</div><div class="line"></div><div class="line">      <span class="keyword">case</span> TYPE_PUSH_PROMISE:</div><div class="line">        readPushPromise(handler, length, flags, streamId);</div><div class="line">        <span class="keyword">break</span>;</div><div class="line"></div><div class="line">      <span class="keyword">case</span> TYPE_PING:</div><div class="line">        readPing(handler, length, flags, streamId);</div><div class="line">        <span class="keyword">break</span>;</div><div class="line"></div><div class="line">      <span class="keyword">case</span> TYPE_GOAWAY:</div><div class="line">        readGoAway(handler, length, flags, streamId);</div><div class="line">        <span class="keyword">break</span>;</div><div class="line"></div><div class="line">      <span class="keyword">case</span> TYPE_WINDOW_UPDATE:</div><div class="line">        readWindowUpdate(handler, length, flags, streamId);</div><div class="line">        <span class="keyword">break</span>;</div><div class="line"></div><div class="line">      <span class="keyword">default</span>:</div><div class="line">        <span class="comment">// Implementations MUST discard frames that have unknown or unsupported types.</span></div><div class="line">        source.skip(length);</div><div class="line">    &#125;</div><div class="line">    <span class="keyword">return</span> <span class="keyword">true</span>;</div><div class="line">  &#125;</div></pre></td></tr></table></figure>
+<p>这段代码中的注释是不是很熟悉,之前分析发送 headers 帧的时候提到过 frame 的格式,那么服务端返回的自然也是遵循这种格式的帧,关于帧的类型有下面 10 种(<a href="https://http2.github.io/http2-spec/#rfc.toc" target="_blank" rel="external">https://http2.github.io/http2-spec/#rfc.toc</a>)</p>
+<p><img src="media/15623494135136.jpg" alt="-w366"></p>
+<p>看下readHeaders 方法:</p>
+<p><strong>[Http2Reader.java]</strong></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">readHeaders</span><span class="params">(Handler handler, <span class="keyword">int</span> length, <span class="keyword">byte</span> flags, <span class="keyword">int</span> streamId)</span></span></div><div class="line">    <span class="keyword">throws</span> IOException &#123;</div><div class="line">  <span class="keyword">if</span> (streamId == <span class="number">0</span>) <span class="keyword">throw</span> ioException(<span class="string">"PROTOCOL_ERROR: TYPE_HEADERS streamId == 0"</span>);</div><div class="line"></div><div class="line">  <span class="keyword">boolean</span> endStream = (flags &amp; FLAG_END_STREAM) != <span class="number">0</span>;</div><div class="line"></div><div class="line">  <span class="keyword">short</span> padding = (flags &amp; FLAG_PADDED) != <span class="number">0</span> ? (<span class="keyword">short</span>) (source.readByte() &amp; <span class="number">0xff</span>) : <span class="number">0</span>;</div><div class="line"></div><div class="line">  <span class="keyword">if</span> ((flags &amp; FLAG_PRIORITY) != <span class="number">0</span>) &#123;</div><div class="line">    readPriority(handler, streamId);</div><div class="line">    length -= <span class="number">5</span>; <span class="comment">// account for above read.</span></div><div class="line">  &#125;</div><div class="line"></div><div class="line">  length = lengthWithoutPadding(length, flags, padding);</div><div class="line"></div><div class="line">  List&lt;Header&gt; headerBlock = readHeaderBlock(length, padding, flags, streamId);</div><div class="line">  <span class="comment">//回到之前看到的处理headers逻辑</span></div><div class="line">  handler.headers(endStream, streamId, -<span class="number">1</span>, headerBlock);</div><div class="line">&#125;</div><div class="line"></div><div class="line"> <span class="function"><span class="keyword">private</span> List&lt;Header&gt; <span class="title">readHeaderBlock</span><span class="params">(<span class="keyword">int</span> length, <span class="keyword">short</span> padding, <span class="keyword">byte</span> flags, <span class="keyword">int</span> streamId)</span></span></div><div class="line">    <span class="keyword">throws</span> IOException &#123;</div><div class="line">  continuation.length = continuation.left = length;</div><div class="line">  continuation.padding = padding;</div><div class="line">  continuation.flags = flags;</div><div class="line">  continuation.streamId = streamId;</div><div class="line"></div><div class="line">  <span class="comment">// <span class="doctag">TODO:</span> Concat multi-value headers with 0x0, except COOKIE, which uses 0x3B, 0x20.</span></div><div class="line">  <span class="comment">// http://tools.ietf.org/html/draft-ietf-httpbis-http2-17#section-8.1.2.5</span></div><div class="line">  hpackReader.readHeaders();</div><div class="line">  <span class="keyword">return</span> hpackReader.getAndResetHeaderList();</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>主要逻辑就是赋值以及从 hpackReader读取 header 数据.之前提到 hpack 是H2头部压缩的一个特性,我们简单看下它怎么取得数据</p>
+<p>[Hpack.java]</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">void</span> <span class="title">readHeaders</span><span class="params">()</span> <span class="keyword">throws</span> IOException </span>&#123;</div><div class="line">      <span class="keyword">while</span> (!source.exhausted()) &#123;</div><div class="line">        <span class="keyword">int</span> b = source.readByte() &amp; <span class="number">0xff</span>;</div><div class="line">        <span class="keyword">if</span> (b == <span class="number">0x80</span>) &#123; <span class="comment">// 10000000</span></div><div class="line">          <span class="keyword">throw</span> <span class="keyword">new</span> IOException(<span class="string">"index == 0"</span>);</div><div class="line">        &#125; <span class="keyword">else</span> <span class="keyword">if</span> ((b &amp; <span class="number">0x80</span>) == <span class="number">0x80</span>) &#123; <span class="comment">// 1NNNNNNN</span></div><div class="line">          <span class="keyword">int</span> index = readInt(b, PREFIX_7_BITS);</div><div class="line">          readIndexedHeader(index - <span class="number">1</span>);</div><div class="line">        &#125; <span class="keyword">else</span> <span class="keyword">if</span> (b == <span class="number">0x40</span>) &#123; <span class="comment">// 01000000</span></div><div class="line">          readLiteralHeaderWithIncrementalIndexingNewName();</div><div class="line">        &#125; <span class="keyword">else</span> <span class="keyword">if</span> ((b &amp; <span class="number">0x40</span>) == <span class="number">0x40</span>) &#123;  <span class="comment">// 01NNNNNN</span></div><div class="line">          <span class="keyword">int</span> index = readInt(b, PREFIX_6_BITS);</div><div class="line">          readLiteralHeaderWithIncrementalIndexingIndexedName(index - <span class="number">1</span>);</div><div class="line">        &#125; <span class="keyword">else</span> <span class="keyword">if</span> ((b &amp; <span class="number">0x20</span>) == <span class="number">0x20</span>) &#123;  <span class="comment">// 001NNNNN</span></div><div class="line">          maxDynamicTableByteCount = readInt(b, PREFIX_5_BITS);</div><div class="line">          <span class="keyword">if</span> (maxDynamicTableByteCount &lt; <span class="number">0</span></div><div class="line">              || maxDynamicTableByteCount &gt; headerTableSizeSetting) &#123;</div><div class="line">            <span class="keyword">throw</span> <span class="keyword">new</span> IOException(<span class="string">"Invalid dynamic table size update "</span> + maxDynamicTableByteCount);</div><div class="line">          &#125;</div><div class="line">          adjustDynamicTableByteCount();</div><div class="line">        &#125; <span class="keyword">else</span> <span class="keyword">if</span> (b == <span class="number">0x10</span> || b == <span class="number">0</span>) &#123; <span class="comment">// 000?0000 - Ignore never indexed bit.</span></div><div class="line">          readLiteralHeaderWithoutIndexingNewName();</div><div class="line">        &#125; <span class="keyword">else</span> &#123; <span class="comment">// 000?NNNN - Ignore never indexed bit.</span></div><div class="line">          <span class="keyword">int</span> index = readInt(b, PREFIX_4_BITS);</div><div class="line">          readLiteralHeaderWithoutIndexingIndexedName(index - <span class="number">1</span>);</div><div class="line">        &#125;</div><div class="line">      &#125;</div><div class="line">    &#125;</div></pre></td></tr></table></figure>
+<blockquote>
+<p>说明:</p>
+<ol>
+<li>该类里有两个表: <code>STATIC_HEADER_TABLE</code>和 <code>dynamicTable</code></li>
+<li>STATIC_HEADER_TABLE是预先定义好的表,如果不在静态表中就需要查找动态表</li>
+<li>动态表的最大字节长度是由SETTING帧的SETTINGS_HEADER_TABLE_SIZE来控制的,ok 内部要求不能超过16k</li>
+<li>是否使用 <code>Huffman</code>编码,是根据H是否为1 来确定的,如下</li>
+</ol>
+</blockquote>
+<p><img src="media/15623944970774.jpg" alt=""><br><img src="media/15623945063118.jpg" alt=""></p>
+<p>至此我们已经大致简单的了解了 H1Codec 和 H2Code 在发送和接收上的区别,前者相对直观,后者主要增加了两个重要特性:多路复用(传输单元为帧)以及首部压缩(Hpack)</p>
+<h1 id="connect具体怎么实现tcp和tls"><a href="#connect具体怎么实现tcp和tls" class="headerlink" title="connect具体怎么实现tcp和tls"></a>connect具体怎么实现tcp和tls</h1><p>之前提到在 <code>ConnectInterceptor</code>中会调用<code>newStream</code>方法,其中会在<code>connectionPool</code>中寻找健康的连接,当找不到可以使用的连接会创建一个<code>RealConnection</code>对象,并调用<code>connect</code>方法,我们来看下具体做了什么.</p>
+<p><strong>[RealConnection.java]</strong></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">connect</span><span class="params">(<span class="keyword">int</span> connectTimeout, <span class="keyword">int</span> readTimeout, <span class="keyword">int</span> writeTimeout,</span></span></div><div class="line">     <span class="keyword">int</span> pingIntervalMillis, <span class="keyword">boolean</span> connectionRetryEnabled, Call call,</div><div class="line">     EventListener eventListener) &#123;</div><div class="line">   <span class="keyword">if</span> (protocol != <span class="keyword">null</span>) <span class="keyword">throw</span> <span class="keyword">new</span> IllegalStateException(<span class="string">"already connected"</span>);</div><div class="line"></div><div class="line">   RouteException routeException = <span class="keyword">null</span>;</div><div class="line">   <span class="comment">//connectionSpecs包含 CipherSuite和 TlsVersion</span></div><div class="line">   List&lt;ConnectionSpec&gt; connectionSpecs = route.address().connectionSpecs();</div><div class="line">   ConnectionSpecSelector connectionSpecSelector = <span class="keyword">new</span> ConnectionSpecSelector(connectionSpecs);</div><div class="line"></div><div class="line">   ...</div><div class="line"> </div><div class="line">   <span class="keyword">while</span> (<span class="keyword">true</span>) &#123;</div><div class="line">     <span class="keyword">try</span> &#123;</div><div class="line">       <span class="comment">//判断是需要建立隧道(有代理都会走进这个逻辑)</span></div><div class="line">       <span class="keyword">if</span> (route.requiresTunnel()) &#123;</div><div class="line">         connectTunnel(connectTimeout, readTimeout, writeTimeout, call, eventListener);</div><div class="line">         <span class="keyword">if</span> (rawSocket == <span class="keyword">null</span>) &#123;</div><div class="line">           <span class="comment">// We were unable to connect the tunnel but properly closed down our resources.</span></div><div class="line">           <span class="keyword">break</span>;</div><div class="line">         &#125;</div><div class="line">       &#125; <span class="keyword">else</span> &#123;</div><div class="line">         <span class="comment">//不需要Tunnel的话则直接连接socket</span></div><div class="line">         connectSocket(connectTimeout, readTimeout, call, eventListener);</div><div class="line">       &#125;</div><div class="line">       <span class="comment">//socket 连接之后</span></div><div class="line">       <span class="comment">//建立协议</span></div><div class="line">       establishProtocol(connectionSpecSelector, pingIntervalMillis, call, eventListener);</div><div class="line">       eventListener.connectEnd(call, route.socketAddress(), route.proxy(), protocol);</div><div class="line">       <span class="keyword">break</span>;</div><div class="line">     &#125; <span class="keyword">catch</span> (IOException e) &#123;</div><div class="line">       closeQuietly(socket);</div><div class="line">       closeQuietly(rawSocket);</div><div class="line">       socket = <span class="keyword">null</span>;</div><div class="line">       rawSocket = <span class="keyword">null</span>;</div><div class="line">       source = <span class="keyword">null</span>;</div><div class="line">       sink = <span class="keyword">null</span>;</div><div class="line">       handshake = <span class="keyword">null</span>;</div><div class="line">       protocol = <span class="keyword">null</span>;</div><div class="line">       http2Connection = <span class="keyword">null</span>;</div><div class="line"></div><div class="line">       eventListener.connectFailed(call, route.socketAddress(), route.proxy(), <span class="keyword">null</span>, e);</div><div class="line"></div><div class="line">       ...</div><div class="line">        <span class="keyword">if</span> (http2Connection != <span class="keyword">null</span>) &#123;</div><div class="line">     <span class="keyword">synchronized</span> (connectionPool) &#123;</div><div class="line">       allocationLimit = http2Connection.maxConcurrentStreams();</div><div class="line">     &#125;</div><div class="line">   &#125;</div><div class="line">   &#125;</div><div class="line"> &#125;</div></pre></td></tr></table></figure>
+<p>主要做了下面几件事:</p>
+<ol>
+<li>获取connectionSpecs</li>
+<li>判断是否需要建立隧道,如果需要则走<code>connectTunnel</code>逻辑,否则则直接走<code>connectSocket</code>逻辑</li>
+<li>socket 连接之后调用<code>establishProtocol</code>方法去建立协议</li>
+<li>如果是 h2connection 则多设置allocationLimit属性</li>
+</ol>
+<p>这里我们看建立隧道的流程</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">connectTunnel</span><span class="params">(<span class="keyword">int</span> connectTimeout, <span class="keyword">int</span> readTimeout, <span class="keyword">int</span> writeTimeout, Call call,</span></span></div><div class="line">      EventListener eventListener) <span class="keyword">throws</span> IOException &#123;</div><div class="line">    <span class="comment">//创建一个Tunnel Request</span></div><div class="line">    Request tunnelRequest = createTunnelRequest();</div><div class="line">    HttpUrl url = tunnelRequest.url();</div><div class="line">    <span class="comment">//最大 21 次隧道连接</span></div><div class="line">    <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; MAX_TUNNEL_ATTEMPTS; i++) &#123;</div><div class="line">      <span class="comment">//连接 socket</span></div><div class="line">      connectSocket(connectTimeout, readTimeout, call, eventListener);</div><div class="line">      <span class="comment">//写入CONNECT信息,并将 request 发给隧道的另一方, 返回200代表隧道连接成功,407 则表示需要认证</span></div><div class="line">      tunnelRequest = createTunnel(readTimeout, writeTimeout, tunnelRequest, url);</div><div class="line">      <span class="comment">//tunnelRequest为null代表连接成功</span></div><div class="line">      <span class="keyword">if</span> (tunnelRequest == <span class="keyword">null</span>) <span class="keyword">break</span>; <span class="comment">// Tunnel successfully created.</span></div><div class="line"></div><div class="line">      <span class="comment">// The proxy decided to close the connection after an auth challenge. We need to create a new</span></div><div class="line">      <span class="comment">// connection, but this time with the auth credentials.</span></div><div class="line">      closeQuietly(rawSocket);</div><div class="line">      rawSocket = <span class="keyword">null</span>;</div><div class="line">      sink = <span class="keyword">null</span>;</div><div class="line">      source = <span class="keyword">null</span>;</div><div class="line">      eventListener.connectEnd(call, route.socketAddress(), route.proxy(), <span class="keyword">null</span>);</div><div class="line">    &#125;</div><div class="line">  &#125;</div></pre></td></tr></table></figure>
+<p>主要做的几件事:</p>
+<ol>
+<li>创建隧道请求</li>
+<li>连接 socket</li>
+<li>将CONNECT信息发送给隧道另一方</li>
+</ol>
+<p>所以我们知道无论走哪个分支都会发起 socket 连接(这不是废话吗…)</p>
+<p>我们再来看建立协议方法<code>establishProtocol</code></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">establishProtocol</span><span class="params">(ConnectionSpecSelector connectionSpecSelector,</span></span></div><div class="line">     <span class="keyword">int</span> pingIntervalMillis, Call call, EventListener eventListener) <span class="keyword">throws</span> IOException &#123;</div><div class="line">   <span class="comment">//sslSocketFactory 为空时</span></div><div class="line">   <span class="keyword">if</span> (route.address().sslSocketFactory() == <span class="keyword">null</span>) &#123;</div><div class="line">     <span class="keyword">if</span> (route.address().protocols().contains(Protocol.H2_PRIOR_KNOWLEDGE)) &#123;</div><div class="line">       <span class="comment">//明文 H2 协议</span></div><div class="line">       socket = rawSocket;</div><div class="line">       protocol = Protocol.H2_PRIOR_KNOWLEDGE;</div><div class="line">       startHttp2(pingIntervalMillis);</div><div class="line">       <span class="keyword">return</span>;</div><div class="line">     &#125;</div><div class="line"></div><div class="line">     socket = rawSocket;</div><div class="line">     protocol = Protocol.HTTP_1_1;</div><div class="line">     <span class="keyword">return</span>;</div><div class="line">   &#125;</div><div class="line"></div><div class="line">   eventListener.secureConnectStart(call);</div><div class="line">   <span class="comment">//tls</span></div><div class="line">   connectTls(connectionSpecSelector);</div><div class="line">   eventListener.secureConnectEnd(call, handshake);</div><div class="line"></div><div class="line">   <span class="keyword">if</span> (protocol == Protocol.HTTP_2) &#123;</div><div class="line">     <span class="comment">//开启 Http2</span></div><div class="line">     startHttp2(pingIntervalMillis);</div><div class="line">   &#125;</div><div class="line"> &#125;</div></pre></td></tr></table></figure>
+<p>主要其实就做了两件事: <code>connectTls</code> 和 <code>startHttp2</code></p>
+<p>先看下<code>connectTls</code></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div><div class="line">53</div><div class="line">54</div><div class="line">55</div><div class="line">56</div><div class="line">57</div><div class="line">58</div><div class="line">59</div><div class="line">60</div><div class="line">61</div><div class="line">62</div><div class="line">63</div><div class="line">64</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">connectTls</span><span class="params">(ConnectionSpecSelector connectionSpecSelector)</span> <span class="keyword">throws</span> IOException </span>&#123;</div><div class="line">    Address address = route.address();</div><div class="line">    SSLSocketFactory sslSocketFactory = address.sslSocketFactory();</div><div class="line">    <span class="keyword">boolean</span> success = <span class="keyword">false</span>;</div><div class="line">    SSLSocket sslSocket = <span class="keyword">null</span>;</div><div class="line">    <span class="keyword">try</span> &#123;</div><div class="line"></div><div class="line">      <span class="comment">//基于原来的 socket创建一个 sslsocket</span></div><div class="line">      sslSocket = (SSLSocket) sslSocketFactory.createSocket(</div><div class="line">          rawSocket, address.url().host(), address.url().port(), <span class="keyword">true</span> <span class="comment">/* autoClose */</span>);</div><div class="line"></div><div class="line">      <span class="comment">//配置sslsocket</span></div><div class="line">      ConnectionSpec connectionSpec = connectionSpecSelector.configureSecureSocket(sslSocket);</div><div class="line">      <span class="keyword">if</span> (connectionSpec.supportsTlsExtensions()) &#123;</div><div class="line">        <span class="comment">//tls扩展参数</span></div><div class="line">        Platform.get().configureTlsExtensions(</div><div class="line">            sslSocket, address.url().host(), address.protocols());</div><div class="line">      &#125;</div><div class="line"></div><div class="line">      <span class="comment">// tls握手</span></div><div class="line">      sslSocket.startHandshake();</div><div class="line"></div><div class="line">      <span class="comment">//获取SSLSession(包含传回来cipersuite,TLs主秘钥等等)</span></div><div class="line">      SSLSession sslSocketSession = sslSocket.getSession();</div><div class="line">      Handshake unverifiedHandshake = Handshake.get(sslSocketSession);</div><div class="line"></div><div class="line">      <span class="comment">//验证证书,看该 host 是否可信</span></div><div class="line">      <span class="keyword">if</span> (!address.hostnameVerifier().verify(address.url().host(), sslSocketSession)) &#123;</div><div class="line">        X509Certificate cert = (X509Certificate) unverifiedHandshake.peerCertificates().get(<span class="number">0</span>);</div><div class="line">        <span class="keyword">throw</span> <span class="keyword">new</span> SSLPeerUnverifiedException(<span class="string">"Hostname "</span> + address.url().host() + <span class="string">" not verified:"</span></div><div class="line">            + <span class="string">"\n    certificate: "</span> + CertificatePinner.pin(cert)</div><div class="line">            + <span class="string">"\n    DN: "</span> + cert.getSubjectDN().getName()</div><div class="line">            + <span class="string">"\n    subjectAltNames: "</span> + OkHostnameVerifier.allSubjectAltNames(cert));</div><div class="line">      &#125;</div><div class="line"></div><div class="line">      <span class="comment">// Check that the certificate pinner is satisfied by the certificates presented.</span></div><div class="line">      address.certificatePinner().check(address.url().host(),</div><div class="line">          unverifiedHandshake.peerCertificates());</div><div class="line"></div><div class="line">      <span class="comment">// Success! Save the handshake and the ALPN protocol.</span></div><div class="line">      <span class="comment">//server 端可能支持的协议</span></div><div class="line">      String maybeProtocol = connectionSpec.supportsTlsExtensions()</div><div class="line">          ? Platform.get().getSelectedProtocol(sslSocket)</div><div class="line">          : <span class="keyword">null</span>;</div><div class="line">      socket = sslSocket;</div><div class="line">      source = Okio.buffer(Okio.source(socket));</div><div class="line">      sink = Okio.buffer(Okio.sink(socket));</div><div class="line">      handshake = unverifiedHandshake;</div><div class="line">      protocol = maybeProtocol != <span class="keyword">null</span></div><div class="line">          ? Protocol.get(maybeProtocol)</div><div class="line">          : Protocol.HTTP_1_1;</div><div class="line">      success = <span class="keyword">true</span>;</div><div class="line">    &#125; <span class="keyword">catch</span> (AssertionError e) &#123;</div><div class="line">      <span class="keyword">if</span> (Util.isAndroidGetsocknameError(e)) <span class="keyword">throw</span> <span class="keyword">new</span> IOException(e);</div><div class="line">      <span class="keyword">throw</span> e;</div><div class="line">    &#125; <span class="keyword">finally</span> &#123;</div><div class="line">      <span class="keyword">if</span> (sslSocket != <span class="keyword">null</span>) &#123;</div><div class="line">        Platform.get().afterHandshake(sslSocket);</div><div class="line">      &#125;</div><div class="line">      <span class="keyword">if</span> (!success) &#123;</div><div class="line">        closeQuietly(sslSocket);</div><div class="line">      &#125;</div><div class="line">    &#125;</div><div class="line">  &#125;</div></pre></td></tr></table></figure>
+<p>主要做了下面几件事:</p>
+<ol>
+<li>基于原来的 socket创建一个 sslsocket</li>
+<li>配置sslsocket和扩展tls参数</li>
+<li>tls 握手</li>
+<li>获取远端传回来cipersuite,TLs主秘钥等等</li>
+<li>验证远端证书</li>
+</ol>
+<h2 id="结束语"><a href="#结束语" class="headerlink" title="结束语"></a>结束语</h2><p>至此 OkHttp 的源码分析基本完成了,其实Ok库的整体设计还是比较简单的,但是每一个功能点都会延伸出有很多技术细节,而这些技术细节可能需要用或者是参考的时候再具体分析对应的源码.如最近有同事就问Ok库的DNS解析如果返回多个ip,内部怎么选择? 其实这个问题就是相对比较细节的具体代码其实很容易就找到在<code>RouteSelector</code>类中,可以看出Ok 会尽量避免使用之前连接失败过的ip</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">while</span> (hasNextProxy()) &#123;</div><div class="line">      <span class="comment">// Postponed routes are always tried last. For example, if we have 2 proxies and all the</span></div><div class="line">      <span class="comment">// routes for proxy1 should be postponed, we'll move to proxy2. Only after we've exhausted</span></div><div class="line">      <span class="comment">// all the good routes will we attempt the postponed routes.</span></div><div class="line">      Proxy proxy = nextProxy();</div><div class="line">      <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>, size = inetSocketAddresses.size(); i &lt; size; i++) &#123;</div><div class="line">        Route route = <span class="keyword">new</span> Route(address, proxy, inetSocketAddresses.get(i));</div><div class="line">        <span class="keyword">if</span> (routeDatabase.shouldPostpone(route)) &#123;</div><div class="line">          postponedRoutes.add(route);</div><div class="line">        &#125; <span class="keyword">else</span> &#123;</div><div class="line">          routes.add(route);</div><div class="line">        &#125;</div><div class="line">      &#125;</div><div class="line"></div><div class="line">      <span class="keyword">if</span> (!routes.isEmpty()) &#123;</div><div class="line">        <span class="keyword">break</span>;</div><div class="line">      &#125;</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="keyword">if</span> (routes.isEmpty()) &#123;</div><div class="line">      <span class="comment">// We've exhausted all Proxies so fallback to the postponed routes.</span></div><div class="line">      routes.addAll(postponedRoutes);</div><div class="line">      postponedRoutes.clear();</div><div class="line">    &#125;</div></pre></td></tr></table></figure>
+
+
+                <hr>
+
+                
+
+                <ul class="pager">
+                    
+                    
+                        <li class="next">
+                            <a href="/2018/08/24/自定义Android系统/" data-toggle="tooltip" data-placement="top" title="自定义你想要的 Android 系统">Next Post &rarr;</a>
+                        </li>
+                    
+                </ul>
+
+                
+
+                
+                <!-- disqus 评论框 start -->
+                <div class="comment">
+                    <div id="disqus_thread" class="disqus-thread"></div>
+                </div>
+                <!-- disqus 评论框 end -->
+                
+
+            </div>
+    <!-- Side Catalog Container -->
+        
+            <div class="
+                col-lg-2 col-lg-offset-0
+                visible-lg-block
+                sidebar-container
+                catalog-container">
+                <div class="side-catalog">
+                    <hr class="hidden-sm hidden-xs">
+                    <h5>
+                        <a class="catalog-toggle" href="#">CATALOG</a>
+                    </h5>
+                    <ul class="catalog-body"></ul>
+                </div>
+            </div>
+        
+
+    <!-- Sidebar Container -->
+
+            <div class="
+                col-lg-8 col-lg-offset-2
+                col-md-10 col-md-offset-1
+                sidebar-container">
+
+                <!-- Featured Tags -->
+                
+                <section>
+                    <!-- no hr -->
+                    <h5><a href="/tags/">FEATURED TAGS</a></h5>
+                    <div class="tags">
+                       
+                    </div>
+                </section>
+                
+
+                <!-- Friends Blog -->
+                
+                <hr>
+                <h5>FRIENDS</h5>
+                <ul class="list-inline">
+
+                    
+                        <li><a href="http://lrd.ele.me/" target="_blank">lrd ele&#39;s Blog</a></li>
+                    
+                </ul>
+                
+            </div>
+
+        </div>
+    </div>
+</article>
+
+
+
+
+<!-- disqus 公共JS代码 start (一个网页只需插入一次) -->
+<script type="text/javascript">
+    /* * * CONFIGURATION VARIABLES * * */
+    var disqus_shortname = "hexo-theme-huxblog";
+    var disqus_identifier = "http://mio4kon.com/2019/04/12/OkHttp Http:1.x 与 Http:2.0 相关源码分析/";
+    var disqus_url = "http://mio4kon.com/2019/04/12/OkHttp Http:1.x 与 Http:2.0 相关源码分析/";
+
+    (function() {
+        var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+        dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+        (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    })();
+</script>
+<!-- disqus 公共JS代码 end -->
+
+
+
+
+<!-- async load function -->
+<script>
+    function async(u, c) {
+      var d = document, t = 'script',
+          o = d.createElement(t),
+          s = d.getElementsByTagName(t)[0];
+      o.src = u;
+      if (c) { o.addEventListener('load', function (e) { c(null, e); }, false); }
+      s.parentNode.insertBefore(o, s);
+    }
+</script>
+<!-- anchor-js, Doc:http://bryanbraun.github.io/anchorjs/ -->
+<script>
+    async("https://cdn.bootcss.com/anchor-js/1.1.1/anchor.min.js",function(){
+        anchors.options = {
+          visible: 'always',
+          placement: 'right',
+          icon: '#'
+        };
+        anchors.add().remove('.intro-header h1').remove('.subheading').remove('.sidebar-container h5');
+    })
+</script>
+<style>
+    /* place left on bigger screen */
+    @media all and (min-width: 800px) {
+        .anchorjs-link{
+            position: absolute;
+            left: -0.75em;
+            font-size: 1.1em;
+            margin-top : -0.1em;
+        }
+    }
+</style>
+
+
+
+    <!-- Footer -->
+    <!-- Footer -->
+<footer>
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                <ul class="list-inline text-center">
+                
+                
+                
+
+                
+                    <li>
+                        <a target="_blank" href="http://weibo.com/u/3198010790">
+                            <span class="fa-stack fa-lg">
+                                <i class="fa fa-circle fa-stack-2x"></i>
+                                <i class="fa fa-weibo fa-stack-1x fa-inverse"></i>
+                            </span>
+                        </a>
+                    </li>
+                
+
+                
+
+                
+                    <li>
+                        <a target="_blank"  href="https://github.com/Mio4kon">
+                            <span class="fa-stack fa-lg">
+                                <i class="fa fa-circle fa-stack-2x"></i>
+                                <i class="fa fa-github fa-stack-1x fa-inverse"></i>
+                            </span>
+                        </a>
+                    </li>
+                
+
+                
+
+                </ul>
+                <p class="copyright text-muted">
+                    Copyright &copy; Mio4kon 2019 
+                    <br>
+                    Theme by <a href="http://huangxuan.me">Hux</a> 
+                    <span style="display: inline-block; margin: 0 5px;">
+                        <i class="fa fa-heart"></i>
+                    </span> 
+                    Ported by <a href="http://blog.kaijun.rocks">Kaijun</a> | 
+                    <iframe
+                        style="margin-left: 2px; margin-bottom:-5px;"
+                        frameborder="0" scrolling="0" width="91px" height="20px"
+                        src="https://ghbtns.com/github-btn.html?user=kaijun&repo=hexo-theme-huxblog&type=star&count=true" >
+                    </iframe>
+                </p>
+            </div>
+        </div>
+    </div>
+</footer>
+
+<!-- jQuery -->
+<script src="/js/jquery.min.js"></script>
+
+<!-- Bootstrap Core JavaScript -->
+<script src="/js/bootstrap.min.js"></script>
+
+<!-- Custom Theme JavaScript -->
+<script src="/js/hux-blog.min.js"></script>
+
+
+<!-- async load function -->
+<script>
+    function async(u, c) {
+      var d = document, t = 'script',
+          o = d.createElement(t),
+          s = d.getElementsByTagName(t)[0];
+      o.src = u;
+      if (c) { o.addEventListener('load', function (e) { c(null, e); }, false); }
+      s.parentNode.insertBefore(o, s);
+    }
+</script>
+
+<!-- 
+     Because of the native support for backtick-style fenced code blocks 
+     right within the Markdown is landed in Github Pages, 
+     From V1.6, There is no need for Highlight.js, 
+     so Huxblog drops it officially.
+
+     - https://github.com/blog/2100-github-pages-now-faster-and-simpler-with-jekyll-3-0  
+     - https://help.github.com/articles/creating-and-highlighting-code-blocks/    
+-->
+<!--
+    <script>
+        async("http://cdn.bootcss.com/highlight.js/8.6/highlight.min.js", function(){
+            hljs.initHighlightingOnLoad();
+        })
+    </script>
+    <link href="http://cdn.bootcss.com/highlight.js/8.6/styles/github.min.css" rel="stylesheet">
+-->
+
+
+<!-- jquery.tagcloud.js -->
+<script>
+    // only load tagcloud.js in tag.html
+    if($('#tag_cloud').length !== 0){
+        async("http://mio4kon.com/js/jquery.tagcloud.js",function(){
+            $.fn.tagcloud.defaults = {
+                //size: {start: 1, end: 1, unit: 'em'},
+                color: {start: '#bbbbee', end: '#0085a1'},
+            };
+            $('#tag_cloud a').tagcloud();
+        })
+    }
+</script>
+
+<!--fastClick.js -->
+<script>
+    async("https://cdn.bootcss.com/fastclick/1.0.6/fastclick.min.js", function(){
+        var $nav = document.querySelector("nav");
+        if($nav) FastClick.attach($nav);
+    })
+</script>
+
+
+<!-- Google Analytics -->
+
+
+
+
+<!-- Baidu Tongji -->
+
+
+<!-- Side Catalog -->
+
+<script type="text/javascript">
+    function generateCatalog (selector) {
+        var P = $('div.post-container'),a,n,t,l,i,c;
+        a = P.find('h1,h2,h3,h4,h5,h6');
+        a.each(function () {
+            n = $(this).prop('tagName').toLowerCase();
+            i = "#"+$(this).prop('id');
+            t = $(this).text();
+            c = $('<a href="'+i+'" rel="nofollow">'+t+'</a>');
+            l = $('<li class="'+n+'_nav"></li>').append(c);
+            $(selector).append(l);
+        });
+        return true;    
+    }
+
+    generateCatalog(".catalog-body");
+
+    // toggle side catalog
+    $(".catalog-toggle").click((function(e){
+        e.preventDefault();
+        $('.side-catalog').toggleClass("fold")
+    }))
+
+    /*
+     * Doc: https://github.com/davist11/jQuery-One-Page-Nav
+     * Fork by Hux to support padding
+     */
+    async("/js/jquery.nav.js", function () {
+        $('.catalog-body').onePageNav({
+            currentClass: "active",
+            changeHash: !1,
+            easing: "swing",
+            filter: "",
+            scrollSpeed: 700,
+            scrollOffset: 0,
+            scrollThreshold: .2,
+            begin: null,
+            end: null,
+            scrollChange: null,
+            padding: 80
+        });
+    });
+</script>
+
+
+
+
+
+<!-- Image to hack wechat -->
+<img src="http://mio4kon.com/img/icon_wechat.png" width="0" height="0" />
+<!-- Migrate from head to bottom, no longer block render and still work -->
+
+</body>
+
+</html>

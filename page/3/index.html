@@ -89,15 +89,6 @@
                     
 
                         
-                    
-
-                        
-                    
-
-                        
-                    
-
-                        
                         <li>
                             <a href="/about/">About</a>
                         </li>
@@ -190,6 +181,31 @@
             
                 <!-- Main Content -->
 
+
+<div class="post-preview">
+
+    <a href="/2015/09/22/Touch事件模拟/">
+        <h2 class="post-title">
+            Touch模拟实例
+        </h2>
+        <h3 class="post-subtitle">
+            Touch事件传递
+        </h3>
+        <div class="post-content-preview">
+            Touch模拟实例关于Touch事件的几个模拟示例.如果对分发机制不是很了解的,又没有太多时间模拟实验的,可以参考.
+原流程例子有3个控件:
+
+GrandparentView extends ViewGroup (粉色)ParentView extends ViewGroup      (蓝色)ChildView extends View(棕色)
+其中GrandparentView是Pare......
+        </div>
+    </a>
+    <p class="post-meta">
+        Posted by Mio4kon on
+        2015-09-22
+    </p>
+
+</div>
+<hr>
 
 <div class="post-preview">
 
@@ -293,18 +309,19 @@ build.gradle
 
 <div class="post-preview">
 
-    <a href="/2015/04/16/python 语法总结/">
+    <a href="/2015/04/16/设计模式系列-观察者设计模式/">
         <h2 class="post-title">
-            python 语法总结
+            设计模式系列-观察者设计模式
         </h2>
         <h3 class="post-subtitle">
-            python 入门 
+            走进设计模式
         </h3>
         <div class="post-content-preview">
-            基本语法等待用户输入,保存至namename=raw_input(&#39;what your name:&#39;)注:得到的内容永远是字符串的形式.如果想要整数age=int(raw_input(&#39;age:&#39;))
-注释:#这是注释 
-条件语句: 
-1234567a = 100if a &gt;= 0:    print aelse:    print -a    #eli......
+            
+观察者设计模式,又称订阅发布模式.是用于程序解耦,以事件驱动的一种设计思想.举例来说类似于报纸订阅.比如我关心最近的中国经济的发展.可以订阅中国经济报刊.订阅之后,每天就会收到报纸.而这一过程我只要订阅即可.同样别人也可以订阅中国经济报刊.当我不关心的时候只要取消订阅即可.so easy!
+
+来看一个例子:
+中国气象局提供一组API用来实时的提供温度压强的变化.我们要开发一个展示板用来展示......
         </div>
     </a>
     <p class="post-meta">
@@ -338,19 +355,18 @@ build.gradle
 
 <div class="post-preview">
 
-    <a href="/2015/04/16/设计模式系列-观察者设计模式/">
+    <a href="/2015/04/16/python 语法总结/">
         <h2 class="post-title">
-            设计模式系列-观察者设计模式
+            python 语法总结
         </h2>
         <h3 class="post-subtitle">
-            走进设计模式
+            python 入门 
         </h3>
         <div class="post-content-preview">
-            
-观察者设计模式,又称订阅发布模式.是用于程序解耦,以事件驱动的一种设计思想.举例来说类似于报纸订阅.比如我关心最近的中国经济的发展.可以订阅中国经济报刊.订阅之后,每天就会收到报纸.而这一过程我只要订阅即可.同样别人也可以订阅中国经济报刊.当我不关心的时候只要取消订阅即可.so easy!
-
-来看一个例子:
-中国气象局提供一组API用来实时的提供温度压强的变化.我们要开发一个展示板用来展示......
+            基本语法等待用户输入,保存至namename=raw_input(&#39;what your name:&#39;)注:得到的内容永远是字符串的形式.如果想要整数age=int(raw_input(&#39;age:&#39;))
+注释:#这是注释 
+条件语句: 
+1234567a = 100if a &gt;= 0:    print aelse:    print -a    #eli......
         </div>
     </a>
     <p class="post-meta">
@@ -414,37 +430,6 @@ public void setViewPager(ViewPager viewPager){
 </div>
 <hr>
 
-<div class="post-preview">
-
-    <a href="/2014/12/19/一步步撸出图片加载框架ImageLoader /">
-        <h2 class="post-title">
-            一步步撸出图片加载框架
-        </h2>
-        <h3 class="post-subtitle">
-            超实用,超轻量的图片框架
-        </h3>
-        <div class="post-content-preview">
-            难得空闲,看了鸿洋大神的博客,将代码整合了一下撸出一个简单的图片加载框架,超实用,超轻量,只有2个类(≖ ‿ ≖)✧
-
-参考链接:  鸿洋大神的博客
-
-效果和代码与鸿洋大神博客所写的差不多,主要是加强对这种图片加载框架的理解.
-准备工作:图片工具类压缩图片 
-/**
- * 计算图片相对于ImageView控件的压缩比例
- *
- * @param options
- * @param reqWi......
-        </div>
-    </a>
-    <p class="post-meta">
-        Posted by Mio4kon on
-        2014-12-19
-    </p>
-
-</div>
-<hr>
-
 
 
 <!-- Pager -->
@@ -484,12 +469,6 @@ public void setViewPager(ViewPager viewPager){
                     <div class="tags">
                         
                             
-                            <a href="/tags/#源码分析" title="源码分析" rel="2">源码分析</a>
-                            
-                        
-                            
-                        
-                            
                         
                             
                         
@@ -501,10 +480,6 @@ public void setViewPager(ViewPager viewPager){
                             <a href="/tags/#移动自动化测试" title="移动自动化测试" rel="8">移动自动化测试</a>
                             
                         
-                            
-                        
-                            
-                            <a href="/tags/#Material Design" title="Material Design" rel="3">Material Design</a>
                             
                         
                             
@@ -522,7 +497,7 @@ public void setViewPager(ViewPager viewPager){
                             
                         
                             
-                        
+                            <a href="/tags/#Material Design" title="Material Design" rel="3">Material Design</a>
                             
                         
                             
@@ -541,6 +516,16 @@ public void setViewPager(ViewPager viewPager){
                         
                             
                             <a href="/tags/#Head First,设计模式" title="Head First,设计模式" rel="2">Head First,设计模式</a>
+                            
+                        
+                            
+                        
+                            
+                        
+                            
+                        
+                            
+                            <a href="/tags/#源码分析" title="源码分析" rel="2">源码分析</a>
                             
                         
                     </div>
@@ -652,7 +637,7 @@ public void setViewPager(ViewPager viewPager){
 
                 </ul>
                 <p class="copyright text-muted">
-                    Copyright &copy; Mio4kon 2018 
+                    Copyright &copy; Mio4kon 2019 
                     <br>
                     Theme by <a href="http://huangxuan.me">Hux</a> 
                     <span style="display: inline-block; margin: 0 5px;">

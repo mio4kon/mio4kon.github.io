@@ -89,15 +89,6 @@
                     
 
                         
-                    
-
-                        
-                    
-
-                        
-                    
-
-                        
                         <li>
                             <a href="/about/">About</a>
                         </li>
@@ -190,6 +181,33 @@
             
                 <!-- Main Content -->
 
+
+<div class="post-preview">
+
+    <a href="/2019/04/12/OkHttp Http:1.x 与 Http:2.0 相关源码分析/">
+        <h2 class="post-title">
+            OkHttp Http/1.x 与 Http/2.0 相关源码分析
+        </h2>
+        <h3 class="post-subtitle">
+            源码解析
+        </h3>
+        <div class="post-content-preview">
+            
+写这篇博客的目的主要是想了解 Okhttp 在 Http/2.0上是如何实现首部压缩和多路复用的,先从 Ok 主要核心的几个Interceptor 来开头(用到了责任链的设计模式,具体就不展开了), 下面先简单说下这几个Interceptor主要做了什么.
+
+RetryAndFollowUpInterceptor主要职责： 
+
+判断是否可以进行重试
+处理返回的响应码非200情况（例如 30......
+        </div>
+    </a>
+    <p class="post-meta">
+        Posted by Mio4kon on
+        2019-04-12
+    </p>
+
+</div>
+<hr>
 
 <div class="post-preview">
 
@@ -456,28 +474,6 @@ tag_name
 </div>
 <hr>
 
-<div class="post-preview">
-
-    <a href="/2017/04/12/移动端自动化测试系列之三——Allure测试报告/">
-        <h2 class="post-title">
-            移动端自动化测试系列之三——Allure测试报告
-        </h2>
-        <h3 class="post-subtitle">
-            生成美观实用的测试报告
-        </h3>
-        <div class="post-content-preview">
-            前言一个好的测试报告在整个测试框架起到至关重要的部分.最早之前使用Java写 Appium 框架的时候是用extentreports 做为测试报告的框架.
-但是  extentreports 没有 python 版本.于是在网上搜寻了好久,发现很多人提到了 HTMLTestRunner 这个框架.自己试用了一下,发现生成的测试报告实在是太丑了.而且对 python3 的支持也不是很好.最终发......
-        </div>
-    </a>
-    <p class="post-meta">
-        Posted by Mio4kon on
-        2017-04-12
-    </p>
-
-</div>
-<hr>
-
 
 
 <!-- Pager -->
@@ -513,12 +509,6 @@ tag_name
                     <div class="tags">
                         
                             
-                            <a href="/tags/#源码分析" title="源码分析" rel="2">源码分析</a>
-                            
-                        
-                            
-                        
-                            
                         
                             
                         
@@ -530,10 +520,6 @@ tag_name
                             <a href="/tags/#移动自动化测试" title="移动自动化测试" rel="8">移动自动化测试</a>
                             
                         
-                            
-                        
-                            
-                            <a href="/tags/#Material Design" title="Material Design" rel="3">Material Design</a>
                             
                         
                             
@@ -551,7 +537,7 @@ tag_name
                             
                         
                             
-                        
+                            <a href="/tags/#Material Design" title="Material Design" rel="3">Material Design</a>
                             
                         
                             
@@ -570,6 +556,16 @@ tag_name
                         
                             
                             <a href="/tags/#Head First,设计模式" title="Head First,设计模式" rel="2">Head First,设计模式</a>
+                            
+                        
+                            
+                        
+                            
+                        
+                            
+                        
+                            
+                            <a href="/tags/#源码分析" title="源码分析" rel="2">源码分析</a>
                             
                         
                     </div>
@@ -681,7 +677,7 @@ tag_name
 
                 </ul>
                 <p class="copyright text-muted">
-                    Copyright &copy; Mio4kon 2018 
+                    Copyright &copy; Mio4kon 2019 
                     <br>
                     Theme by <a href="http://huangxuan.me">Hux</a> 
                     <span style="display: inline-block; margin: 0 5px;">
