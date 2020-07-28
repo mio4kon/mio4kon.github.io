@@ -17,7 +17,7 @@
         
     </title>
 
-    <link rel="canonical" href="http://mio4kon.com/2017/06/23/Appium源码解析之二——第一个请求/">
+    <link rel="canonical" href="http://mio4kon.github.io/2017/06/23/Appium源码解析之二——第一个请求/">
 
     <!-- Bootstrap Core CSS -->
     <link rel="stylesheet" href="/css/bootstrap.min.css">
@@ -149,7 +149,7 @@
     <!-- Main Content -->
     
 <!-- Image to hack wechat -->
-<!-- <img src="http://mio4kon.com/img/icon_wechat.png" width="0" height="0"> -->
+<!-- <img src="http://mio4kon.github.io/img/icon_wechat.png" width="0" height="0"> -->
 <!-- <img src="{{ site.baseurl }}/{% if page.header-img %}{{ page.header-img }}{% else %}{{ site.header-img }}{% endif %}" width="0" height="0"> -->
 
 <!-- Post Header -->
@@ -191,7 +191,7 @@
                 col-md-10 col-md-offset-1
                 post-container">
 
-                <h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>通过<a href="http://mio4kon.com/2017/06/12/Appium%E6%BA%90%E7%A0%81%E8%A7%A3%E6%9E%90%E2%80%94%E2%80%94%E5%BB%BA%E7%AB%8B%E8%BF%9E%E6%8E%A5/">前一篇的源码分析</a>,我们知道<code>Appium</code>如何开启了服务以及如何处理客户端发起的请求.</p>
+                <h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>通过<a href="http://mio4kon.com/2017/06/12/Appium%E6%BA%90%E7%A0%81%E8%A7%A3%E6%9E%90%E2%80%94%E2%80%94%E5%BB%BA%E7%AB%8B%E8%BF%9E%E6%8E%A5/" target="_blank" rel="external">前一篇的源码分析</a>,我们知道<code>Appium</code>如何开启了服务以及如何处理客户端发起的请求.</p>
 <p>本篇教程将根据第一个请求,来看一看<code>Appium</code>初始化到底做了哪些事情.</p>
 <h1 id="创建SessionId"><a href="#创建SessionId" class="headerlink" title="创建SessionId"></a>创建SessionId</h1><p>先看看Server的log:</p>
 <p><img src="http://mio4kon.qiniudn.com/14975248273981.jpg" alt=""></p>
@@ -259,7 +259,7 @@
 <p>这个图挺老的了.不过原理还是没变的.客户端会向<code>Appium Server</code>下发请求.手机端同样也会安装一个<code>Phone Server</code>,<code>Appium Server</code>通过代理把之前收到客户端请求转发给手机端的<code>Phone Server</code>.这样就实现了三端通讯:</p>
 <p><strong><code>Client</code> &lt;–&gt; <code>`Appium Server</code> &lt;–&gt; <code>Phone</code></strong></p>
 <p>再来看看第8条 <code>initAUT</code>:</p>
-<p>调用<code>initAUT</code>有个前提,就是客户端给的配置项<code>autoLaunch</code>必须为<code>True</code>.这里有个坑之前坑到了我.有兴趣的可以看下我之前的一篇博客: <a href="http://mio4kon.com/2017/06/12/Appium%E8%B8%A9%E5%9D%91%E4%B9%8B%E6%97%85%E2%80%94%E2%80%94%E5%B0%8F%E7%B1%B3%E6%89%8B%E6%9C%BA/">Appium踩坑之旅——小米手机</a></p>
+<p>调用<code>initAUT</code>有个前提,就是客户端给的配置项<code>autoLaunch</code>必须为<code>True</code>.这里有个坑之前坑到了我.有兴趣的可以看下我之前的一篇博客: <a href="http://mio4kon.com/2017/06/12/Appium%E8%B8%A9%E5%9D%91%E4%B9%8B%E6%97%85%E2%80%94%E2%80%94%E5%B0%8F%E7%B1%B3%E6%89%8B%E6%9C%BA/" target="_blank" rel="external">Appium踩坑之旅——小米手机</a></p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div></pre></td><td class="code"><pre><div class="line">async initAUT () &#123;</div><div class="line"> </div><div class="line">  this.apkStrings[this.opts.language] = await androidHelpers.pushStrings(</div><div class="line">      this.opts.language, this.adb, this.opts);</div><div class="line"></div><div class="line">  if (!this.opts.app) &#123;</div><div class="line">    if (this.opts.fullReset) &#123;</div><div class="line">      logger.errorAndThrow(&apos;Full reset requires an app capability, use fastReset if app is not provided&apos;);</div><div class="line">    &#125;</div><div class="line">    logger.debug(&apos;No app capability. Assuming it is already on the device&apos;);</div><div class="line">    if (this.opts.fastReset) &#123;</div><div class="line">      await helpers.resetApp(this.adb, this.opts.app, this.opts.appPackage, this.opts.fastReset);</div><div class="line">    &#125;</div><div class="line">  &#125;</div><div class="line"></div><div class="line">  if (!this.opts.skipUninstall) &#123;</div><div class="line">    await this.adb.uninstallApk(this.opts.appPackage);</div><div class="line">  &#125;</div><div class="line">  if (!this.opts.noSign) &#123;</div><div class="line">    let signed = await this.adb.checkApkCert(this.opts.app, this.opts.appPackage);</div><div class="line">    if (!signed &amp;&amp; this.opts.app) &#123;</div><div class="line">      await this.adb.sign(this.opts.app, this.opts.appPackage);</div><div class="line">    &#125;</div><div class="line">  &#125;</div><div class="line">  if (this.opts.app) &#123;</div><div class="line">    await helpers.installApkRemotely(this.adb, this.opts);</div><div class="line">  &#125;</div><div class="line">  //[1]</div><div class="line">  await this.grantPermissions();</div><div class="line">  //[2]</div><div class="line">  await this.uiautomator2.installServerApk();</div><div class="line">&#125;</div></pre></td></tr></table></figure>
 <p>有很多配置项,大家有兴趣的可以看下各种配置具体的实现.这里有个<code>[1]this.grantPermissions()</code>方法,我们来看下:</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div></pre></td><td class="code"><pre><div class="line">async grantPermissions () &#123;</div><div class="line">  if (this.opts.autoGrantPermissions) &#123;</div><div class="line">    try &#123;</div><div class="line">      await this.adb.grantAllPermissions(this.opts.appPackage, this.opts.app);</div><div class="line">    &#125; catch (error) &#123;</div><div class="line">      logger.error(`Unable to grant permissions requested. Original error: $&#123;error.message&#125;`);</div><div class="line">    &#125;</div><div class="line">  &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
@@ -404,8 +404,8 @@ to the system through an AndroidManifest.xml&apos;s &lt;instrumentation&gt; tag.
 <script type="text/javascript">
     /* * * CONFIGURATION VARIABLES * * */
     var disqus_shortname = "hexo-theme-huxblog";
-    var disqus_identifier = "http://mio4kon.com/2017/06/23/Appium源码解析之二——第一个请求/";
-    var disqus_url = "http://mio4kon.com/2017/06/23/Appium源码解析之二——第一个请求/";
+    var disqus_identifier = "http://mio4kon.github.io/2017/06/23/Appium源码解析之二——第一个请求/";
+    var disqus_url = "http://mio4kon.github.io/2017/06/23/Appium源码解析之二——第一个请求/";
 
     (function() {
         var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
@@ -493,7 +493,7 @@ to the system through an AndroidManifest.xml&apos;s &lt;instrumentation&gt; tag.
 
                 </ul>
                 <p class="copyright text-muted">
-                    Copyright &copy; Mio4kon 2019 
+                    Copyright &copy; Mio4kon 2020 
                     <br>
                     Theme by <a href="http://huangxuan.me">Hux</a> 
                     <span style="display: inline-block; margin: 0 5px;">
@@ -556,7 +556,7 @@ to the system through an AndroidManifest.xml&apos;s &lt;instrumentation&gt; tag.
 <script>
     // only load tagcloud.js in tag.html
     if($('#tag_cloud').length !== 0){
-        async("http://mio4kon.com/js/jquery.tagcloud.js",function(){
+        async("http://mio4kon.github.io/js/jquery.tagcloud.js",function(){
             $.fn.tagcloud.defaults = {
                 //size: {start: 1, end: 1, unit: 'em'},
                 color: {start: '#bbbbee', end: '#0085a1'},
@@ -634,7 +634,7 @@ to the system through an AndroidManifest.xml&apos;s &lt;instrumentation&gt; tag.
 
 
 <!-- Image to hack wechat -->
-<img src="http://mio4kon.com/img/icon_wechat.png" width="0" height="0" />
+<img src="http://mio4kon.github.io/img/icon_wechat.png" width="0" height="0" />
 <!-- Migrate from head to bottom, no longer block render and still work -->
 
 </body>

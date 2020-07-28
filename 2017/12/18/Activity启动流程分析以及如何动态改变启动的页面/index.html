@@ -17,7 +17,7 @@
         
     </title>
 
-    <link rel="canonical" href="http://mio4kon.com/2017/12/18/Activity启动流程分析以及如何动态改变启动的页面/">
+    <link rel="canonical" href="http://mio4kon.github.io/2017/12/18/Activity启动流程分析以及如何动态改变启动的页面/">
 
     <!-- Bootstrap Core CSS -->
     <link rel="stylesheet" href="/css/bootstrap.min.css">
@@ -149,7 +149,7 @@
     <!-- Main Content -->
     
 <!-- Image to hack wechat -->
-<!-- <img src="http://mio4kon.com/img/icon_wechat.png" width="0" height="0"> -->
+<!-- <img src="http://mio4kon.github.io/img/icon_wechat.png" width="0" height="0"> -->
 <!-- <img src="{{ site.baseurl }}/{% if page.header-img %}{{ page.header-img }}{% else %}{{ site.header-img }}{% endif %}" width="0" height="0"> -->
 
 <!-- Post Header -->
@@ -274,7 +274,7 @@
 <h3 id="Activity-performCreate"><a href="#Activity-performCreate" class="headerlink" title="Activity.performCreate"></a>Activity.performCreate</h3><p><strong>[Activity.java]</strong></p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">final</span> <span class="keyword">void</span> <span class="title">performCreate</span><span class="params">(Bundle icicle)</span> </span>&#123;</div><div class="line">       restoreHasCurrentPermissionRequest(icicle);</div><div class="line">       onCreate(icicle);</div><div class="line">       mActivityTransitionState.readState(icicle);</div><div class="line">       performCreateCommon();</div><div class="line">   &#125;</div></pre></td></tr></table></figure>
 <p>至此<code>Activity</code>的启动流程就分析完成了. 最后这部分的流程图如下:</p>
-<p><img src="http://mio4kon.qiniudn.com/startActivity_3.png" alt=""></p>
+<p><img src="http://mio4kon.s3-cn-east-1.qiniucs.com/startActivity_3.png" alt=""></p>
 <h1 id="总结"><a href="#总结" class="headerlink" title="总结:"></a>总结:</h1><p>由于启动流程比较复杂,尤其是AMS中的代码.本篇主要列出了一些重点流程以及其中的一些方法.简单来说就是客户端(这里可以是Launcher可以是自己的APP)通过<code>Binder</code>通知<code>AMS</code>.<code>AMS</code>处理完成后,通知客户端生成<code>Activity</code>类并调用其生命周期.</p>
 <h1 id="问题"><a href="#问题" class="headerlink" title="问题:"></a>问题:</h1><p>假如有一个需求,我们在代码写入启动<code>ActivityA</code> ,但我们在<code>AndroidManifest</code>中注册的却是<code>ActivityB</code>,我们希望最终打开的是<code>ActivityA</code>.如何Hook呢? </p>
 <p>这个需求其实正是有些插件框架所使用的.在主工程中的<code>AndroidManifest</code>插入备用桩.然后最终会打开插件中的<code>Activity</code>.</p>
@@ -380,8 +380,8 @@
 <script type="text/javascript">
     /* * * CONFIGURATION VARIABLES * * */
     var disqus_shortname = "hexo-theme-huxblog";
-    var disqus_identifier = "http://mio4kon.com/2017/12/18/Activity启动流程分析以及如何动态改变启动的页面/";
-    var disqus_url = "http://mio4kon.com/2017/12/18/Activity启动流程分析以及如何动态改变启动的页面/";
+    var disqus_identifier = "http://mio4kon.github.io/2017/12/18/Activity启动流程分析以及如何动态改变启动的页面/";
+    var disqus_url = "http://mio4kon.github.io/2017/12/18/Activity启动流程分析以及如何动态改变启动的页面/";
 
     (function() {
         var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
@@ -469,7 +469,7 @@
 
                 </ul>
                 <p class="copyright text-muted">
-                    Copyright &copy; Mio4kon 2019 
+                    Copyright &copy; Mio4kon 2020 
                     <br>
                     Theme by <a href="http://huangxuan.me">Hux</a> 
                     <span style="display: inline-block; margin: 0 5px;">
@@ -532,7 +532,7 @@
 <script>
     // only load tagcloud.js in tag.html
     if($('#tag_cloud').length !== 0){
-        async("http://mio4kon.com/js/jquery.tagcloud.js",function(){
+        async("http://mio4kon.github.io/js/jquery.tagcloud.js",function(){
             $.fn.tagcloud.defaults = {
                 //size: {start: 1, end: 1, unit: 'em'},
                 color: {start: '#bbbbee', end: '#0085a1'},
@@ -610,7 +610,7 @@
 
 
 <!-- Image to hack wechat -->
-<img src="http://mio4kon.com/img/icon_wechat.png" width="0" height="0" />
+<img src="http://mio4kon.github.io/img/icon_wechat.png" width="0" height="0" />
 <!-- Migrate from head to bottom, no longer block render and still work -->
 
 </body>

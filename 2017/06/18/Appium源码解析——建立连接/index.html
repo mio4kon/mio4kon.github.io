@@ -17,7 +17,7 @@
         
     </title>
 
-    <link rel="canonical" href="http://mio4kon.com/2017/06/18/Appium源码解析——建立连接/">
+    <link rel="canonical" href="http://mio4kon.github.io/2017/06/18/Appium源码解析——建立连接/">
 
     <!-- Bootstrap Core CSS -->
     <link rel="stylesheet" href="/css/bootstrap.min.css">
@@ -149,7 +149,7 @@
     <!-- Main Content -->
     
 <!-- Image to hack wechat -->
-<!-- <img src="http://mio4kon.com/img/icon_wechat.png" width="0" height="0"> -->
+<!-- <img src="http://mio4kon.github.io/img/icon_wechat.png" width="0" height="0"> -->
 <!-- <img src="{{ site.baseurl }}/{% if page.header-img %}{{ page.header-img }}{% else %}{{ site.header-img }}{% endif %}" width="0" height="0"> -->
 
 <!-- Post Header -->
@@ -228,7 +228,7 @@
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div></pre></td><td class="code"><pre><div class="line">function configureServer (app, configureRoutes) &#123;</div><div class="line"> </div><div class="line"></div><div class="line">  // set up static assets</div><div class="line">  app.use(favicon(path.resolve(STATIC_DIR, &apos;favicon.ico&apos;)));</div><div class="line">  app.use(express.static(STATIC_DIR));</div><div class="line"></div><div class="line">  // crash routes, for testing</div><div class="line">  app.use(&apos;/wd/hub/produce_error&apos;, produceError);</div><div class="line">  app.use(&apos;/wd/hub/crash&apos;, produceCrash);</div><div class="line">	...</div><div class="line">	//[1]</div><div class="line">  configureRoutes(app);</div><div class="line">	...</div><div class="line">  &#125;</div></pre></td></tr></table></figure>
 <p>里面处理了各种异常,很重要一点绑定了之前创建的路由<code>[1]configureRoutes(app)</code>,<code>configureRoutes</code>就是之前我们获得<code>router</code>.</p>
 <p><code>appium</code>服务器的创建以及响应的处理我们都已经在代码中一一找到了.下一篇将具体针对创建<code>session</code>这个请求来看一看整个过程是如何处理的.</p>
-<p>下一篇地址: <a href="http://mio4kon.com/2017/06/23/Appium%E6%BA%90%E7%A0%81%E8%A7%A3%E6%9E%90%E4%B9%8B%E4%BA%8C%E2%80%94%E2%80%94%E7%AC%AC%E4%B8%80%E4%B8%AA%E8%AF%B7%E6%B1%82/">Appium源码解析之二——第一个请求</a></p>
+<p>下一篇地址: <a href="http://mio4kon.com/2017/06/23/Appium%E6%BA%90%E7%A0%81%E8%A7%A3%E6%9E%90%E4%B9%8B%E4%BA%8C%E2%80%94%E2%80%94%E7%AC%AC%E4%B8%80%E4%B8%AA%E8%AF%B7%E6%B1%82/" target="_blank" rel="external">Appium源码解析之二——第一个请求</a></p>
 
 
                 <hr>
@@ -320,8 +320,8 @@
 <script type="text/javascript">
     /* * * CONFIGURATION VARIABLES * * */
     var disqus_shortname = "hexo-theme-huxblog";
-    var disqus_identifier = "http://mio4kon.com/2017/06/18/Appium源码解析——建立连接/";
-    var disqus_url = "http://mio4kon.com/2017/06/18/Appium源码解析——建立连接/";
+    var disqus_identifier = "http://mio4kon.github.io/2017/06/18/Appium源码解析——建立连接/";
+    var disqus_url = "http://mio4kon.github.io/2017/06/18/Appium源码解析——建立连接/";
 
     (function() {
         var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
@@ -409,7 +409,7 @@
 
                 </ul>
                 <p class="copyright text-muted">
-                    Copyright &copy; Mio4kon 2019 
+                    Copyright &copy; Mio4kon 2020 
                     <br>
                     Theme by <a href="http://huangxuan.me">Hux</a> 
                     <span style="display: inline-block; margin: 0 5px;">
@@ -472,7 +472,7 @@
 <script>
     // only load tagcloud.js in tag.html
     if($('#tag_cloud').length !== 0){
-        async("http://mio4kon.com/js/jquery.tagcloud.js",function(){
+        async("http://mio4kon.github.io/js/jquery.tagcloud.js",function(){
             $.fn.tagcloud.defaults = {
                 //size: {start: 1, end: 1, unit: 'em'},
                 color: {start: '#bbbbee', end: '#0085a1'},
@@ -550,7 +550,7 @@
 
 
 <!-- Image to hack wechat -->
-<img src="http://mio4kon.com/img/icon_wechat.png" width="0" height="0" />
+<img src="http://mio4kon.github.io/img/icon_wechat.png" width="0" height="0" />
 <!-- Migrate from head to bottom, no longer block render and still work -->
 
 </body>

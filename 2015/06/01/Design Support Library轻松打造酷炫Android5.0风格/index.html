@@ -17,7 +17,7 @@
         
     </title>
 
-    <link rel="canonical" href="http://mio4kon.com/2015/06/01/Design Support Library轻松打造酷炫Android5.0风格/">
+    <link rel="canonical" href="http://mio4kon.github.io/2015/06/01/Design Support Library轻松打造酷炫Android5.0风格/">
 
     <!-- Bootstrap Core CSS -->
     <link rel="stylesheet" href="/css/bootstrap.min.css">
@@ -149,7 +149,7 @@
     <!-- Main Content -->
     
 <!-- Image to hack wechat -->
-<!-- <img src="http://mio4kon.com/img/icon_wechat.png" width="0" height="0"> -->
+<!-- <img src="http://mio4kon.github.io/img/icon_wechat.png" width="0" height="0"> -->
 <!-- <img src="{{ site.baseurl }}/{% if page.header-img %}{{ page.header-img }}{% else %}{{ site.header-img }}{% endif %}" width="0" height="0"> -->
 
 <!-- Post Header -->
@@ -202,7 +202,7 @@
 <figure class="highlight xml"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div></pre></td><td class="code"><pre><div class="line"><span class="tag">&lt;<span class="name">LinearLayout</span> <span class="attr">xmlns:android</span>=<span class="string">"http://schemas.android.com/apk/res/android"</span></span></div><div class="line">              <span class="attr">android:layout_width</span>=<span class="string">"match_parent"</span></div><div class="line">              <span class="attr">android:layout_height</span>=<span class="string">"192dp"</span></div><div class="line">              <span class="attr">android:background</span>=<span class="string">"?attr/colorPrimaryDark"</span></div><div class="line">              <span class="attr">android:padding</span>=<span class="string">"16dp"</span></div><div class="line">              <span class="attr">android:theme</span>=<span class="string">"@style/ThemeOverlay.AppCompat.Dark"</span></div><div class="line">              <span class="attr">android:orientation</span>=<span class="string">"vertical"</span></div><div class="line">              <span class="attr">android:gravity</span>=<span class="string">"bottom"</span>&gt;</div><div class="line"></div><div class="line">    <span class="tag">&lt;<span class="name">TextView</span></span></div><div class="line">        <span class="attr">android:layout_width</span>=<span class="string">"match_parent"</span></div><div class="line">        <span class="attr">android:layout_height</span>=<span class="string">"wrap_content"</span></div><div class="line">        <span class="attr">android:text</span>=<span class="string">"Username"</span></div><div class="line">        <span class="attr">android:textAppearance</span>=<span class="string">"@style/TextAppearance.AppCompat.Body1"</span>/&gt;</div><div class="line"></div><div class="line"><span class="tag">&lt;/<span class="name">LinearLayout</span>&gt;</span></div></pre></td></tr></table></figure>
 <p>menu: <code>drawer_view.xml</code></p>
 <figure class="highlight xml"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div></pre></td><td class="code"><pre><div class="line">&lt;?xml version="1.0" encoding="utf-8"?&gt;</div><div class="line"><span class="tag">&lt;<span class="name">menu</span> <span class="attr">xmlns:android</span>=<span class="string">"http://schemas.android.com/apk/res/android"</span>&gt;</span></div><div class="line"></div><div class="line">    <span class="tag">&lt;<span class="name">group</span> <span class="attr">android:checkableBehavior</span>=<span class="string">"single"</span>&gt;</span></div><div class="line">        <span class="tag">&lt;<span class="name">item</span></span></div><div class="line">            <span class="attr">android:id</span>=<span class="string">"@+id/nav_home"</span></div><div class="line">            <span class="attr">android:icon</span>=<span class="string">"@mipmap/ic_dashboard"</span></div><div class="line">            <span class="attr">android:title</span>=<span class="string">"Home"</span> /&gt;</div><div class="line">        <span class="tag">&lt;<span class="name">item</span></span></div><div class="line">            <span class="attr">android:id</span>=<span class="string">"@+id/nav_messages"</span></div><div class="line">            <span class="attr">android:icon</span>=<span class="string">"@mipmap/ic_event"</span></div><div class="line">            <span class="attr">android:title</span>=<span class="string">"Messages"</span> /&gt;</div><div class="line">        <span class="tag">&lt;<span class="name">item</span></span></div><div class="line">            <span class="attr">android:id</span>=<span class="string">"@+id/nav_friends"</span></div><div class="line">            <span class="attr">android:icon</span>=<span class="string">"@mipmap/ic_headset"</span></div><div class="line">            <span class="attr">android:title</span>=<span class="string">"Friends"</span> /&gt;</div><div class="line">        <span class="tag">&lt;<span class="name">item</span></span></div><div class="line">            <span class="attr">android:id</span>=<span class="string">"@+id/nav_discussion"</span></div><div class="line">            <span class="attr">android:icon</span>=<span class="string">"@mipmap/ic_forum"</span></div><div class="line">            <span class="attr">android:title</span>=<span class="string">"Discussion"</span> /&gt;</div><div class="line">    <span class="tag">&lt;/<span class="name">group</span>&gt;</span></div><div class="line"></div><div class="line">    <span class="tag">&lt;<span class="name">item</span> <span class="attr">android:title</span>=<span class="string">"Sub items"</span>&gt;</span></div><div class="line">        <span class="tag">&lt;<span class="name">menu</span>&gt;</span></div><div class="line">            <span class="tag">&lt;<span class="name">item</span></span></div><div class="line">                <span class="attr">android:icon</span>=<span class="string">"@mipmap/ic_dashboard"</span></div><div class="line">                <span class="attr">android:title</span>=<span class="string">"Sub item 1"</span> /&gt;</div><div class="line">            <span class="tag">&lt;<span class="name">item</span></span></div><div class="line">                <span class="attr">android:icon</span>=<span class="string">"@mipmap/ic_forum"</span></div><div class="line">                <span class="attr">android:title</span>=<span class="string">"Sub item 2"</span> /&gt;</div><div class="line">        <span class="tag">&lt;/<span class="name">menu</span>&gt;</span></div><div class="line">    <span class="tag">&lt;/<span class="name">item</span>&gt;</span></div><div class="line"></div><div class="line"><span class="tag">&lt;/<span class="name">menu</span>&gt;</span></div></pre></td></tr></table></figure>
-<p>menu布局对应上图观看.<br>可以发现到目前为止我们只是写一写XML布局.那么具体了代码如何编写呢?<br>不要急,<code>activity_main.xml</code>中我们还引入了<code>layout_content.xml</code>这里面具体代码暂时不贴出来.暂时里面其实就放了<code>Toolbar</code>.不知道<code>Toolbar</code>的可以参考<a href="http://mio4kon.com/2014/11/29/toolbar/">Toolbar详解</a>这篇文章.</p>
+<p>menu布局对应上图观看.<br>可以发现到目前为止我们只是写一写XML布局.那么具体了代码如何编写呢?<br>不要急,<code>activity_main.xml</code>中我们还引入了<code>layout_content.xml</code>这里面具体代码暂时不贴出来.暂时里面其实就放了<code>Toolbar</code>.不知道<code>Toolbar</code>的可以参考<a href="http://mio4kon.com/2014/11/29/toolbar/" target="_blank" rel="external">Toolbar详解</a>这篇文章.</p>
 <p>现在可以看具体的代码部分了,超级简单:</p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div></pre></td><td class="code"><pre><div class="line"><span class="comment">//初始化ToolBar</span></div><div class="line">Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);</div><div class="line">setSupportActionBar(toolbar);</div><div class="line"><span class="keyword">final</span> ActionBar ab = getSupportActionBar();</div><div class="line">ab.setHomeAsUpIndicator(R.mipmap.ic_menu);</div><div class="line">ab.setDisplayHomeAsUpEnabled(<span class="keyword">true</span>);</div><div class="line"></div><div class="line">mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);</div><div class="line">NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);</div><div class="line"><span class="keyword">if</span> (navigationView != <span class="keyword">null</span>) &#123;</div><div class="line">    navigationView.setNavigationItemSelectedListener (</div><div class="line">            <span class="keyword">new</span> NavigationView.OnNavigationItemSelectedListener () &#123;</div><div class="line">                <span class="meta">@Override</span></div><div class="line">                <span class="function"><span class="keyword">public</span> <span class="keyword">boolean</span> <span class="title">onNavigationItemSelected</span><span class="params">(MenuItem menuItem)</span> </span>&#123;</div><div class="line">                    menuItem.setChecked (<span class="keyword">true</span>);</div><div class="line">                    mDrawerLayout.closeDrawers ();</div><div class="line">                    <span class="keyword">return</span> <span class="keyword">true</span>;</div><div class="line">                &#125;</div><div class="line">            &#125;);</div><div class="line">&#125;</div></pre></td></tr></table></figure>
 <p>可以发现通过实现<code>setNavigationItemSelectedListener</code>就可以实现menu的item点击事件.并自动关闭抽屉.再也不用我们自己写这一块逻辑了!</p>
@@ -247,12 +247,12 @@
                 <ul class="pager">
                     
                         <li class="previous">
-                            <a href="/2015/06/01/Android使用JAVA8新特性/" data-toggle="tooltip" data-placement="top" title="Android如何使用JAVA8新特性--lambda表达式">&larr; Previous Post</a>
+                            <a href="/2015/08/22/换个主题,还不错/" data-toggle="tooltip" data-placement="top" title="换个主题,还不错">&larr; Previous Post</a>
                         </li>
                     
                     
                         <li class="next">
-                            <a href="/2015/04/16/Android webview之java与js交互/" data-toggle="tooltip" data-placement="top" title="Android Hybrid app开发之java与js交互">Next Post &rarr;</a>
+                            <a href="/2015/06/01/Android使用JAVA8新特性/" data-toggle="tooltip" data-placement="top" title="Android如何使用JAVA8新特性--lambda表达式">Next Post &rarr;</a>
                         </li>
                     
                 </ul>
@@ -329,8 +329,8 @@
 <script type="text/javascript">
     /* * * CONFIGURATION VARIABLES * * */
     var disqus_shortname = "hexo-theme-huxblog";
-    var disqus_identifier = "http://mio4kon.com/2015/06/01/Design Support Library轻松打造酷炫Android5.0风格/";
-    var disqus_url = "http://mio4kon.com/2015/06/01/Design Support Library轻松打造酷炫Android5.0风格/";
+    var disqus_identifier = "http://mio4kon.github.io/2015/06/01/Design Support Library轻松打造酷炫Android5.0风格/";
+    var disqus_url = "http://mio4kon.github.io/2015/06/01/Design Support Library轻松打造酷炫Android5.0风格/";
 
     (function() {
         var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
@@ -418,7 +418,7 @@
 
                 </ul>
                 <p class="copyright text-muted">
-                    Copyright &copy; Mio4kon 2019 
+                    Copyright &copy; Mio4kon 2020 
                     <br>
                     Theme by <a href="http://huangxuan.me">Hux</a> 
                     <span style="display: inline-block; margin: 0 5px;">
@@ -481,7 +481,7 @@
 <script>
     // only load tagcloud.js in tag.html
     if($('#tag_cloud').length !== 0){
-        async("http://mio4kon.com/js/jquery.tagcloud.js",function(){
+        async("http://mio4kon.github.io/js/jquery.tagcloud.js",function(){
             $.fn.tagcloud.defaults = {
                 //size: {start: 1, end: 1, unit: 'em'},
                 color: {start: '#bbbbee', end: '#0085a1'},
@@ -559,7 +559,7 @@
 
 
 <!-- Image to hack wechat -->
-<img src="http://mio4kon.com/img/icon_wechat.png" width="0" height="0" />
+<img src="http://mio4kon.github.io/img/icon_wechat.png" width="0" height="0" />
 <!-- Migrate from head to bottom, no longer block render and still work -->
 
 </body>
