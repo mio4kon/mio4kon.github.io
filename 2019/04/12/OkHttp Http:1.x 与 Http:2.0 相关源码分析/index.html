@@ -9,7 +9,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="description" content="android mio4kon mio">
     <meta name="keyword"  content="">
-    <link rel="shortcut icon" href="/miokon.github.io/img/favicon.ico">
+    <link rel="shortcut icon" href="/img/favicon.ico">
 
     <title>
         
@@ -17,16 +17,16 @@
         
     </title>
 
-    <link rel="canonical" href="http://mio4kon.github.io/miokon.github.io/2019/04/12/OkHttp Http:1.x 与 Http:2.0 相关源码分析/">
+    <link rel="canonical" href="http://mio4kon.github.io/2019/04/12/OkHttp Http:1.x 与 Http:2.0 相关源码分析/">
 
     <!-- Bootstrap Core CSS -->
-    <link rel="stylesheet" href="/miokon.github.io/css/bootstrap.min.css">
+    <link rel="stylesheet" href="/css/bootstrap.min.css">
 
     <!-- Custom CSS -->
-    <link rel="stylesheet" href="/miokon.github.io/css/hux-blog.min.css">
+    <link rel="stylesheet" href="/css/hux-blog.min.css">
 
     <!-- Pygments Highlight CSS -->
-    <link rel="stylesheet" href="/miokon.github.io/css/highlight.css">
+    <link rel="stylesheet" href="/css/highlight.css">
 
     <!-- Custom Fonts -->
     <!-- <link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css" rel="stylesheet" type="text/css"> -->
@@ -67,7 +67,7 @@
                 <span class="icon-bar"></span>
                 <span class="icon-bar"></span>
             </button>
-            <a class="navbar-brand" href="/miokon.github.io/">Mio4kon</a>
+            <a class="navbar-brand" href="/">Mio4kon</a>
         </div>
 
         <!-- Collect the nav links, forms, and other content for toggling -->
@@ -80,7 +80,7 @@
             <div class="navbar-collapse">
                 <ul class="nav navbar-nav navbar-right">
                     <li>
-                        <a href="/miokon.github.io/">Home</a>
+                        <a href="/">Home</a>
                     </li>
 
                     
@@ -90,21 +90,21 @@
 
                         
                         <li>
-                            <a href="/miokon.github.io/about/">About</a>
+                            <a href="/about/">About</a>
                         </li>
                         
                     
 
                         
                         <li>
-                            <a href="/miokon.github.io/archives/">Archives</a>
+                            <a href="/tags/">Tags</a>
                         </li>
                         
                     
 
                         
                         <li>
-                            <a href="/miokon.github.io/tags/">Tags</a>
+                            <a href="/archives/">Archives</a>
                         </li>
                         
                     
@@ -149,13 +149,13 @@
     <!-- Main Content -->
     
 <!-- Image to hack wechat -->
-<!-- <img src="http://mio4kon.github.io/miokon.github.io/img/icon_wechat.png" width="0" height="0"> -->
+<!-- <img src="http://mio4kon.github.io/img/icon_wechat.png" width="0" height="0"> -->
 <!-- <img src="{{ site.baseurl }}/{% if page.header-img %}{{ page.header-img }}{% else %}{{ site.header-img }}{% endif %}" width="0" height="0"> -->
 
 <!-- Post Header -->
 <style type="text/css">
     header.intro-header{
-        background-image: url('/miokon.github.io/img/home-bg.jpg')
+        background-image: url('/img/home-bg.jpg')
     }
 </style>
 <header class="intro-header" >
@@ -233,12 +233,16 @@
 <figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">private</span> Http2Stream <span class="title">newStream</span><span class="params">(</span></span></div><div class="line">      <span class="keyword">int</span> associatedStreamId, List&lt;Header&gt; requestHeaders, <span class="keyword">boolean</span> out) <span class="keyword">throws</span> IOException &#123;</div><div class="line">    <span class="keyword">boolean</span> outFinished = !out;</div><div class="line">    <span class="keyword">boolean</span> inFinished = <span class="keyword">false</span>;</div><div class="line">    <span class="keyword">boolean</span> flushHeaders;</div><div class="line">    Http2Stream stream;</div><div class="line">    <span class="keyword">int</span> streamId;</div><div class="line"></div><div class="line">    <span class="keyword">synchronized</span> (writer) &#123;</div><div class="line">      <span class="keyword">synchronized</span> (<span class="keyword">this</span>) &#123;</div><div class="line">        <span class="keyword">if</span> (nextStreamId &gt; Integer.MAX_VALUE / <span class="number">2</span>) &#123;</div><div class="line">          shutdown(REFUSED_STREAM);</div><div class="line">        &#125;</div><div class="line">        <span class="keyword">if</span> (shutdown) &#123;</div><div class="line">          <span class="keyword">throw</span> <span class="keyword">new</span> ConnectionShutdownException();</div><div class="line">        &#125;</div><div class="line">        <span class="comment">//生成streamId,客户端id 为奇数</span></div><div class="line">        streamId = nextStreamId;</div><div class="line">        nextStreamId += <span class="number">2</span>;</div><div class="line">        <span class="comment">//创建 stream 对象</span></div><div class="line">        stream = <span class="keyword">new</span> Http2Stream(streamId, <span class="keyword">this</span>, outFinished, inFinished, <span class="keyword">null</span>);</div><div class="line">        flushHeaders = !out || bytesLeftInWriteWindow == <span class="number">0L</span> || stream.bytesLeftInWriteWindow == <span class="number">0L</span>;</div><div class="line">        <span class="keyword">if</span> (stream.isOpen()) &#123;</div><div class="line">          streams.put(streamId, stream);</div><div class="line">        &#125;</div><div class="line">      &#125;</div><div class="line">      <span class="keyword">if</span> (associatedStreamId == <span class="number">0</span>) &#123;</div><div class="line">        writer.synStream(outFinished, streamId, associatedStreamId, requestHeaders);</div><div class="line">      &#125; <span class="keyword">else</span> <span class="keyword">if</span> (client) &#123;</div><div class="line">        <span class="keyword">throw</span> <span class="keyword">new</span> IllegalArgumentException(<span class="string">"client streams shouldn't have associated stream IDs"</span>);</div><div class="line">      &#125; <span class="keyword">else</span> &#123; <span class="comment">// HTTP/2 has a PUSH_PROMISE frame.</span></div><div class="line">        writer.pushPromise(associatedStreamId, streamId, requestHeaders);</div><div class="line">      &#125;</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="keyword">if</span> (flushHeaders) &#123;</div><div class="line">      writer.flush();</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="keyword">return</span> stream;</div><div class="line">  &#125;</div></pre></td></tr></table></figure>
 <blockquote>
 <p>说明:</p>
+</blockquote>
+<blockquote>
 <ol>
 <li>客户端的stream id 必须为奇数(<a href="https://http2.github.io/http2-spec/#HEADERS" target="_blank" rel="external">https://http2.github.io/http2-spec/#HEADERS</a>)<br>Streams are identified with an unsigned 31-bit integer. Streams initiated by a client MUST use odd-numbered stream identifiers;</li>
-<li><p>创建的 <code>stream</code> 会放到<code>H2Connection</code>的<code>streams</code>集合中去,这也说明一个 <code>H2Connection</code>是对应多个 stream 流</p>
-</li>
-<li><p>HTTP 2.0无论客户端还是服务端都可以创建 stream,前者通过发送 <code>HEADERS</code>来创建新的 stream,后者是通过 <code>PUSH_PROMISE</code>.这也是为什么最后会有两个分支 <code>writer.synStream</code> 和 <code>writer.pushPromise</code>,这里只分析客户端发送 <code>HEADERS</code> 的情况.</p>
-</li>
+<li>创建的 <code>stream</code> 会放到<code>H2Connection</code>的<code>streams</code>集合中去,这也说明一个 <code>H2Connection</code>是对应多个 stream 流</li>
+</ol>
+</blockquote>
+<blockquote>
+<ol start="3">
+<li>HTTP 2.0无论客户端还是服务端都可以创建 stream,前者通过发送 <code>HEADERS</code>来创建新的 stream,后者是通过 <code>PUSH_PROMISE</code>.这也是为什么最后会有两个分支 <code>writer.synStream</code> 和 <code>writer.pushPromise</code>,这里只分析客户端发送 <code>HEADERS</code> 的情况.</li>
 </ol>
 </blockquote>
 <p><strong>[Http2Writer.java]</strong></p>
@@ -332,7 +336,7 @@
                     
                     
                         <li class="next">
-                            <a href="/miokon.github.io/2018/08/24/自定义Android系统/" data-toggle="tooltip" data-placement="top" title="自定义你想要的 Android 系统">Next Post &rarr;</a>
+                            <a href="/2018/08/24/自定义Android系统/" data-toggle="tooltip" data-placement="top" title="自定义你想要的 Android 系统">Next Post &rarr;</a>
                         </li>
                     
                 </ul>
@@ -376,7 +380,7 @@
                 
                 <section>
                     <!-- no hr -->
-                    <h5><a href="/miokon.github.io/tags/">FEATURED TAGS</a></h5>
+                    <h5><a href="/tags/">FEATURED TAGS</a></h5>
                     <div class="tags">
                        
                     </div>
@@ -407,8 +411,8 @@
 <script type="text/javascript">
     /* * * CONFIGURATION VARIABLES * * */
     var disqus_shortname = "hexo-theme-huxblog";
-    var disqus_identifier = "http://mio4kon.github.io/miokon.github.io/2019/04/12/OkHttp Http:1.x 与 Http:2.0 相关源码分析/";
-    var disqus_url = "http://mio4kon.github.io/miokon.github.io/2019/04/12/OkHttp Http:1.x 与 Http:2.0 相关源码分析/";
+    var disqus_identifier = "http://mio4kon.github.io/2019/04/12/OkHttp Http:1.x 与 Http:2.0 相关源码分析/";
+    var disqus_url = "http://mio4kon.github.io/2019/04/12/OkHttp Http:1.x 与 Http:2.0 相关源码分析/";
 
     (function() {
         var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
@@ -515,13 +519,13 @@
 </footer>
 
 <!-- jQuery -->
-<script src="/miokon.github.io/js/jquery.min.js"></script>
+<script src="/js/jquery.min.js"></script>
 
 <!-- Bootstrap Core JavaScript -->
-<script src="/miokon.github.io/js/bootstrap.min.js"></script>
+<script src="/js/bootstrap.min.js"></script>
 
 <!-- Custom Theme JavaScript -->
-<script src="/miokon.github.io/js/hux-blog.min.js"></script>
+<script src="/js/hux-blog.min.js"></script>
 
 
 <!-- async load function -->
@@ -559,7 +563,7 @@
 <script>
     // only load tagcloud.js in tag.html
     if($('#tag_cloud').length !== 0){
-        async("http://mio4kon.github.io/miokon.github.io/js/jquery.tagcloud.js",function(){
+        async("http://mio4kon.github.io/js/jquery.tagcloud.js",function(){
             $.fn.tagcloud.defaults = {
                 //size: {start: 1, end: 1, unit: 'em'},
                 color: {start: '#bbbbee', end: '#0085a1'},
@@ -615,7 +619,7 @@
      * Doc: https://github.com/davist11/jQuery-One-Page-Nav
      * Fork by Hux to support padding
      */
-    async("/miokon.github.io/js/jquery.nav.js", function () {
+    async("/js/jquery.nav.js", function () {
         $('.catalog-body').onePageNav({
             currentClass: "active",
             changeHash: !1,
@@ -637,7 +641,7 @@
 
 
 <!-- Image to hack wechat -->
-<img src="http://mio4kon.github.io/miokon.github.io/img/icon_wechat.png" width="0" height="0" />
+<img src="http://mio4kon.github.io/img/icon_wechat.png" width="0" height="0" />
 <!-- Migrate from head to bottom, no longer block render and still work -->
 
 </body>

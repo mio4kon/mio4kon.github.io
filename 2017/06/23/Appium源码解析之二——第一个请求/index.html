@@ -9,7 +9,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="description" content="android mio4kon mio">
     <meta name="keyword"  content="">
-    <link rel="shortcut icon" href="/miokon.github.io/img/favicon.ico">
+    <link rel="shortcut icon" href="/img/favicon.ico">
 
     <title>
         
@@ -17,16 +17,16 @@
         
     </title>
 
-    <link rel="canonical" href="http://mio4kon.github.io/miokon.github.io/2017/06/23/Appium源码解析之二——第一个请求/">
+    <link rel="canonical" href="http://mio4kon.github.io/2017/06/23/Appium源码解析之二——第一个请求/">
 
     <!-- Bootstrap Core CSS -->
-    <link rel="stylesheet" href="/miokon.github.io/css/bootstrap.min.css">
+    <link rel="stylesheet" href="/css/bootstrap.min.css">
 
     <!-- Custom CSS -->
-    <link rel="stylesheet" href="/miokon.github.io/css/hux-blog.min.css">
+    <link rel="stylesheet" href="/css/hux-blog.min.css">
 
     <!-- Pygments Highlight CSS -->
-    <link rel="stylesheet" href="/miokon.github.io/css/highlight.css">
+    <link rel="stylesheet" href="/css/highlight.css">
 
     <!-- Custom Fonts -->
     <!-- <link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css" rel="stylesheet" type="text/css"> -->
@@ -67,7 +67,7 @@
                 <span class="icon-bar"></span>
                 <span class="icon-bar"></span>
             </button>
-            <a class="navbar-brand" href="/miokon.github.io/">Mio4kon</a>
+            <a class="navbar-brand" href="/">Mio4kon</a>
         </div>
 
         <!-- Collect the nav links, forms, and other content for toggling -->
@@ -80,7 +80,7 @@
             <div class="navbar-collapse">
                 <ul class="nav navbar-nav navbar-right">
                     <li>
-                        <a href="/miokon.github.io/">Home</a>
+                        <a href="/">Home</a>
                     </li>
 
                     
@@ -90,21 +90,21 @@
 
                         
                         <li>
-                            <a href="/miokon.github.io/about/">About</a>
+                            <a href="/about/">About</a>
                         </li>
                         
                     
 
                         
                         <li>
-                            <a href="/miokon.github.io/archives/">Archives</a>
+                            <a href="/tags/">Tags</a>
                         </li>
                         
                     
 
                         
                         <li>
-                            <a href="/miokon.github.io/tags/">Tags</a>
+                            <a href="/archives/">Archives</a>
                         </li>
                         
                     
@@ -149,13 +149,13 @@
     <!-- Main Content -->
     
 <!-- Image to hack wechat -->
-<!-- <img src="http://mio4kon.github.io/miokon.github.io/img/icon_wechat.png" width="0" height="0"> -->
+<!-- <img src="http://mio4kon.github.io/img/icon_wechat.png" width="0" height="0"> -->
 <!-- <img src="{{ site.baseurl }}/{% if page.header-img %}{{ page.header-img }}{% else %}{{ site.header-img }}{% endif %}" width="0" height="0"> -->
 
 <!-- Post Header -->
 <style type="text/css">
     header.intro-header{
-        background-image: url('/miokon.github.io/img/home-bg.jpg')
+        background-image: url('/img/home-bg.jpg')
     }
 </style>
 <header class="intro-header" >
@@ -165,7 +165,7 @@
                 <div class="post-heading">
                     <div class="tags">
                         
-                          <a class="tag" href="/miokon.github.io/tags/#移动自动化测试" title="移动自动化测试">移动自动化测试</a>
+                          <a class="tag" href="/tags/#移动自动化测试" title="移动自动化测试">移动自动化测试</a>
                         
                     </div>
                     <h1>Appium源码解析之二——第一个请求</h1>
@@ -257,7 +257,7 @@
 <p>这个代理到底是做什么的呢?我们看下图:</p>
 <p><img src="http://mio4kon.qiniudn.com/14981907295929.jpg" alt=""></p>
 <p>这个图挺老的了.不过原理还是没变的.客户端会向<code>Appium Server</code>下发请求.手机端同样也会安装一个<code>Phone Server</code>,<code>Appium Server</code>通过代理把之前收到客户端请求转发给手机端的<code>Phone Server</code>.这样就实现了三端通讯:</p>
-<p><strong><code>Client</code> &lt;–&gt; <code>`Appium Server</code> &lt;–&gt; <code>Phone</code></strong></p>
+<p><strong><code>Client</code> <--> <code></code>Appium Server<code>&lt;--&gt;</code>Phone`</--></strong></p>
 <p>再来看看第8条 <code>initAUT</code>:</p>
 <p>调用<code>initAUT</code>有个前提,就是客户端给的配置项<code>autoLaunch</code>必须为<code>True</code>.这里有个坑之前坑到了我.有兴趣的可以看下我之前的一篇博客: <a href="http://mio4kon.com/2017/06/12/Appium%E8%B8%A9%E5%9D%91%E4%B9%8B%E6%97%85%E2%80%94%E2%80%94%E5%B0%8F%E7%B1%B3%E6%89%8B%E6%9C%BA/" target="_blank" rel="external">Appium踩坑之旅——小米手机</a></p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div></pre></td><td class="code"><pre><div class="line">async initAUT () &#123;</div><div class="line"> </div><div class="line">  this.apkStrings[this.opts.language] = await androidHelpers.pushStrings(</div><div class="line">      this.opts.language, this.adb, this.opts);</div><div class="line"></div><div class="line">  if (!this.opts.app) &#123;</div><div class="line">    if (this.opts.fullReset) &#123;</div><div class="line">      logger.errorAndThrow(&apos;Full reset requires an app capability, use fastReset if app is not provided&apos;);</div><div class="line">    &#125;</div><div class="line">    logger.debug(&apos;No app capability. Assuming it is already on the device&apos;);</div><div class="line">    if (this.opts.fastReset) &#123;</div><div class="line">      await helpers.resetApp(this.adb, this.opts.app, this.opts.appPackage, this.opts.fastReset);</div><div class="line">    &#125;</div><div class="line">  &#125;</div><div class="line"></div><div class="line">  if (!this.opts.skipUninstall) &#123;</div><div class="line">    await this.adb.uninstallApk(this.opts.appPackage);</div><div class="line">  &#125;</div><div class="line">  if (!this.opts.noSign) &#123;</div><div class="line">    let signed = await this.adb.checkApkCert(this.opts.app, this.opts.appPackage);</div><div class="line">    if (!signed &amp;&amp; this.opts.app) &#123;</div><div class="line">      await this.adb.sign(this.opts.app, this.opts.appPackage);</div><div class="line">    &#125;</div><div class="line">  &#125;</div><div class="line">  if (this.opts.app) &#123;</div><div class="line">    await helpers.installApkRemotely(this.adb, this.opts);</div><div class="line">  &#125;</div><div class="line">  //[1]</div><div class="line">  await this.grantPermissions();</div><div class="line">  //[2]</div><div class="line">  await this.uiautomator2.installServerApk();</div><div class="line">&#125;</div></pre></td></tr></table></figure>
@@ -322,12 +322,12 @@ to the system through an AndroidManifest.xml&apos;s &lt;instrumentation&gt; tag.
                 <ul class="pager">
                     
                         <li class="previous">
-                            <a href="/miokon.github.io/2017/12/18/Activity启动流程分析以及如何动态改变启动的页面/" data-toggle="tooltip" data-placement="top" title="Activity启动流程分析以及如何动态改变启动的页面">&larr; Previous Post</a>
+                            <a href="/2017/12/18/Activity启动流程分析以及如何动态改变启动的页面/" data-toggle="tooltip" data-placement="top" title="Activity启动流程分析以及如何动态改变启动的页面">&larr; Previous Post</a>
                         </li>
                     
                     
                         <li class="next">
-                            <a href="/miokon.github.io/2017/06/18/Appium源码解析——建立连接/" data-toggle="tooltip" data-placement="top" title="Appium源码解析之一——建立连接">Next Post &rarr;</a>
+                            <a href="/2017/06/18/Appium源码解析——建立连接/" data-toggle="tooltip" data-placement="top" title="Appium源码解析之一——建立连接">Next Post &rarr;</a>
                         </li>
                     
                 </ul>
@@ -371,10 +371,10 @@ to the system through an AndroidManifest.xml&apos;s &lt;instrumentation&gt; tag.
                 
                 <section>
                     <!-- no hr -->
-                    <h5><a href="/miokon.github.io/tags/">FEATURED TAGS</a></h5>
+                    <h5><a href="/tags/">FEATURED TAGS</a></h5>
                     <div class="tags">
                        
-                          <a class="tag" href="/miokon.github.io/tags/#移动自动化测试" title="移动自动化测试">移动自动化测试</a>
+                          <a class="tag" href="/tags/#移动自动化测试" title="移动自动化测试">移动自动化测试</a>
                         
                     </div>
                 </section>
@@ -404,8 +404,8 @@ to the system through an AndroidManifest.xml&apos;s &lt;instrumentation&gt; tag.
 <script type="text/javascript">
     /* * * CONFIGURATION VARIABLES * * */
     var disqus_shortname = "hexo-theme-huxblog";
-    var disqus_identifier = "http://mio4kon.github.io/miokon.github.io/2017/06/23/Appium源码解析之二——第一个请求/";
-    var disqus_url = "http://mio4kon.github.io/miokon.github.io/2017/06/23/Appium源码解析之二——第一个请求/";
+    var disqus_identifier = "http://mio4kon.github.io/2017/06/23/Appium源码解析之二——第一个请求/";
+    var disqus_url = "http://mio4kon.github.io/2017/06/23/Appium源码解析之二——第一个请求/";
 
     (function() {
         var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
@@ -512,13 +512,13 @@ to the system through an AndroidManifest.xml&apos;s &lt;instrumentation&gt; tag.
 </footer>
 
 <!-- jQuery -->
-<script src="/miokon.github.io/js/jquery.min.js"></script>
+<script src="/js/jquery.min.js"></script>
 
 <!-- Bootstrap Core JavaScript -->
-<script src="/miokon.github.io/js/bootstrap.min.js"></script>
+<script src="/js/bootstrap.min.js"></script>
 
 <!-- Custom Theme JavaScript -->
-<script src="/miokon.github.io/js/hux-blog.min.js"></script>
+<script src="/js/hux-blog.min.js"></script>
 
 
 <!-- async load function -->
@@ -556,7 +556,7 @@ to the system through an AndroidManifest.xml&apos;s &lt;instrumentation&gt; tag.
 <script>
     // only load tagcloud.js in tag.html
     if($('#tag_cloud').length !== 0){
-        async("http://mio4kon.github.io/miokon.github.io/js/jquery.tagcloud.js",function(){
+        async("http://mio4kon.github.io/js/jquery.tagcloud.js",function(){
             $.fn.tagcloud.defaults = {
                 //size: {start: 1, end: 1, unit: 'em'},
                 color: {start: '#bbbbee', end: '#0085a1'},
@@ -612,7 +612,7 @@ to the system through an AndroidManifest.xml&apos;s &lt;instrumentation&gt; tag.
      * Doc: https://github.com/davist11/jQuery-One-Page-Nav
      * Fork by Hux to support padding
      */
-    async("/miokon.github.io/js/jquery.nav.js", function () {
+    async("/js/jquery.nav.js", function () {
         $('.catalog-body').onePageNav({
             currentClass: "active",
             changeHash: !1,
@@ -634,7 +634,7 @@ to the system through an AndroidManifest.xml&apos;s &lt;instrumentation&gt; tag.
 
 
 <!-- Image to hack wechat -->
-<img src="http://mio4kon.github.io/miokon.github.io/img/icon_wechat.png" width="0" height="0" />
+<img src="http://mio4kon.github.io/img/icon_wechat.png" width="0" height="0" />
 <!-- Migrate from head to bottom, no longer block render and still work -->
 
 </body>
