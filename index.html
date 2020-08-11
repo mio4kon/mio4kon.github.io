@@ -90,7 +90,7 @@
 
                         
                         <li>
-                            <a href="/tags/">Tags</a>
+                            <a href="/archives/">Archives</a>
                         </li>
                         
                     
@@ -104,7 +104,7 @@
 
                         
                         <li>
-                            <a href="/archives/">Archives</a>
+                            <a href="/tags/">Tags</a>
                         </li>
                         
                     
@@ -184,26 +184,23 @@
 
 <div class="post-preview">
 
-    <a href="/2019/09/16/TAC开源框架源码浅析/">
+    <a href="/2020/08/11/Android minSdkVersion背后尽然还有这种勾当/">
         <h2 class="post-title">
-            TAC开源框架源码浅析
+            Android minSdkVersion背后尽然还有这种勾当
         </h2>
         <h3 class="post-subtitle">
-            TAC
+            Android
         </h3>
         <div class="post-content-preview">
-            TAC相关介绍 https://github.com/alibaba/tac
+            前情提要 今天在调研某 sdk的时候发现一直奔溃, 查看日志发现是找不到 xxx.so 的问题. 本身问题很简单,但是奇怪的是apk 包解压后发现这些 So文件实际上都是有的.
 
-TAC (Tiny API Cloud ) 是与 tangram 配套的服务端解决方案。当然也支持脱离 tangram 使用；
-TAC 不是平台，也不是框架，而是一种开发模式；
-
-下面主要是 mark 一些源码相关的关键内容
-生成实例当点击发布正式环境时,会先触发RedisMsSubscriber 然后发通知到 ......
+ 在排除了cpu 架构的问题之后发现在手机的 /data/data/包名/lib下面是空的, 而是 link 到 /data/app 的一个目录下.猜测可能是这个原因导致的.
+但是提供 sdk 方的 demo 并没......
         </div>
     </a>
     <p class="post-meta">
         Posted by Mio4kon on
-        2019-09-16
+        2020-08-11
     </p>
 
 </div>
@@ -232,6 +229,33 @@ Linux内核将所有外部设备都当做一个文件来操作
     <p class="post-meta">
         Posted by Mio4kon on
         2019-08-11
+    </p>
+
+</div>
+<hr>
+
+<div class="post-preview">
+
+    <a href="/2019/07/06/TAC开源框架源码浅析/">
+        <h2 class="post-title">
+            TAC开源框架源码浅析
+        </h2>
+        <h3 class="post-subtitle">
+            TAC
+        </h3>
+        <div class="post-content-preview">
+            TAC相关介绍 https://github.com/alibaba/tac
+
+TAC (Tiny API Cloud ) 是与 tangram 配套的服务端解决方案。当然也支持脱离 tangram 使用；
+TAC 不是平台，也不是框架，而是一种开发模式；
+
+下面主要是 mark 一些源码相关的关键内容
+生成实例当点击发布正式环境时,会先触发RedisMsSubscriber 然后发通知到 ......
+        </div>
+    </a>
+    <p class="post-meta">
+        Posted by Mio4kon on
+        2019-07-06
     </p>
 
 </div>
@@ -440,35 +464,6 @@ Activity.startActivity[Activity.java]
 </div>
 <hr>
 
-<div class="post-preview">
-
-    <a href="/2017/06/12/Appium踩坑之旅——小米手机/">
-        <h2 class="post-title">
-            Appium踩坑之旅——小米手机
-        </h2>
-        <h3 class="post-subtitle">
-            踩坑之旅
-        </h3>
-        <div class="post-content-preview">
-            前言了解过 Appium 或看过我之前写的系列教程的人,一定知道在与Appium Server连接的时候会传入相应的capabilities.
-
-platformName
-automationName
-autoLaunch
-noSign
-….
-
-automationName是告诉 Appium Server是用什么方式来操作UI元素的.对应源码来说就是使用什么样的 Driver.(下一篇教程......
-        </div>
-    </a>
-    <p class="post-meta">
-        Posted by Mio4kon on
-        2017-06-12
-    </p>
-
-</div>
-<hr>
-
 
 
 <!-- Pager -->
@@ -512,8 +507,6 @@ automationName是告诉 Appium Server是用什么方式来操作UI元素的.对�
                             
                         
                             
-                        
-                            
                             <a href="/tags/#移动自动化测试" title="移动自动化测试" rel="8">移动自动化测试</a>
                             
                         
@@ -526,7 +519,11 @@ automationName是告诉 Appium Server是用什么方式来操作UI元素的.对�
                             
                         
                             
+                        
+                            
                             <a href="/tags/#Kotlin" title="Kotlin" rel="2">Kotlin</a>
+                            
+                        
                             
                         
                             
@@ -548,13 +545,13 @@ automationName是告诉 Appium Server是用什么方式来操作UI元素的.对�
                             
                         
                             
-                        
-                            
-                        
-                            
-                        
-                            
                             <a href="/tags/#Head First,设计模式" title="Head First,设计模式" rel="2">Head First,设计模式</a>
+                            
+                        
+                            
+                        
+                            
+                        
                             
                         
                             
