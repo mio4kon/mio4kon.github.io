@@ -1,0 +1,699 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<!-- Head tag -->
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="google-site-verification" content="xBT4GhYoi5qRD5tr338pgPM5OWHHIDR6mNg1a3euekI" />
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="android mio4kon mio">
+    <meta name="keyword"  content="">
+    <link rel="shortcut icon" href="/img/favicon.ico">
+
+    <title>
+        
+          深入浅析 Linux IO模型相关内容 - Mio4kon的博客 | Mio4kon&#39;s Blog
+        
+    </title>
+
+    <link rel="canonical" href="https://miokon.cn/2019/08/11/深入浅析 Linux IO模型/">
+
+    <!-- Bootstrap Core CSS -->
+    <link rel="stylesheet" href="/css/bootstrap.min.css">
+
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="/css/hux-blog.min.css">
+
+    <!-- Pygments Highlight CSS -->
+    <link rel="stylesheet" href="/css/highlight.css">
+
+    <!-- Custom Fonts -->
+    <!-- <link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css" rel="stylesheet" type="text/css"> -->
+    <!-- Hux change font-awesome CDN to qiniu -->
+    <link href="https://cdn.staticfile.org/font-awesome/4.5.0/css/font-awesome.min.css" rel="stylesheet" type="text/css">
+
+
+    <!-- Hux Delete, sad but pending in China
+    <link href='http://fonts.googleapis.com/css?family=Lora:400,700,400italic,700italic' rel='stylesheet' type='text/css'>
+    <link href='http://fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800' rel='stylesheet' type='text/
+    css'>
+    -->
+
+
+    <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+        <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+        <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+
+    <!-- ga & ba script hoook -->
+    <script></script>
+</head>
+
+
+<!-- hack iOS CSS :active style -->
+<body ontouchstart="">
+
+    <!-- Navigation -->
+<nav class="navbar navbar-default navbar-custom navbar-fixed-top">
+    <div class="container-fluid">
+        <!-- Brand and toggle get grouped for better mobile display -->
+        <div class="navbar-header page-scroll">
+            <button type="button" class="navbar-toggle">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="/">Mio4kon</a>
+        </div>
+
+        <!-- Collect the nav links, forms, and other content for toggling -->
+        <!-- Known Issue, found by Hux:
+            <nav>'s height woule be hold on by its content.
+            so, when navbar scale out, the <nav> will cover tags.
+            also mask any touch event of tags, unfortunately.
+        -->
+        <div id="huxblog_navbar">
+            <div class="navbar-collapse">
+                <ul class="nav navbar-nav navbar-right">
+                    <li>
+                        <a href="/">Home</a>
+                    </li>
+
+                    
+
+                        
+                    
+
+                        
+                        <li>
+                            <a href="/archives/">Archives</a>
+                        </li>
+                        
+                    
+
+                        
+                        <li>
+                            <a href="/about/">About</a>
+                        </li>
+                        
+                    
+
+                        
+                        <li>
+                            <a href="/tags/">Tags</a>
+                        </li>
+                        
+                    
+                    
+                </ul>
+            </div>
+        </div>
+        <!-- /.navbar-collapse -->
+    </div>
+    <!-- /.container -->
+</nav>
+<script>
+    // Drop Bootstarp low-performance Navbar
+    // Use customize navbar with high-quality material design animation
+    // in high-perf jank-free CSS3 implementation
+    var $body   = document.body;
+    var $toggle = document.querySelector('.navbar-toggle');
+    var $navbar = document.querySelector('#huxblog_navbar');
+    var $collapse = document.querySelector('.navbar-collapse');
+
+    $toggle.addEventListener('click', handleMagic)
+    function handleMagic(e){
+        if ($navbar.className.indexOf('in') > 0) {
+        // CLOSE
+            $navbar.className = " ";
+            // wait until animation end.
+            setTimeout(function(){
+                // prevent frequently toggle
+                if($navbar.className.indexOf('in') < 0) {
+                    $collapse.style.height = "0px"
+                }
+            },400)
+        }else{
+        // OPEN
+            $collapse.style.height = "auto"
+            $navbar.className += " in";
+        }
+    }
+</script>
+
+
+    <!-- Main Content -->
+    
+<!-- Image to hack wechat -->
+<!-- <img src="https://miokon.cn/img/icon_wechat.png" width="0" height="0"> -->
+<!-- <img src="{{ site.baseurl }}/{% if page.header-img %}{{ page.header-img }}{% else %}{{ site.header-img }}{% endif %}" width="0" height="0"> -->
+
+<!-- Post Header -->
+<style type="text/css">
+    header.intro-header{
+        background-image: url('/img/home-bg.jpg')
+    }
+</style>
+<header class="intro-header" >
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                <div class="post-heading">
+                    <div class="tags">
+                        
+                          <a class="tag" href="/tags/#Linux" title="Linux">Linux</a>
+                        
+                    </div>
+                    <h1>深入浅析 Linux IO模型相关内容</h1>
+                    <h2 class="subheading">Linux IO</h2>
+                    <span class="meta">
+                        Posted by Mio4kon on
+                        2019-08-11
+                    </span>
+                </div>
+            </div>
+        </div>
+    </div>
+</header>
+
+<!-- Post Content -->
+<article>
+    <div class="container">
+        <div class="row">
+
+    <!-- Post Container -->
+            <div class="
+                col-lg-8 col-lg-offset-2
+                col-md-10 col-md-offset-1
+                post-container">
+
+                <h1 id="前置概念"><a href="#前置概念" class="headerlink" title="前置概念"></a>前置概念</h1><h2 id="文件描述符-fd"><a href="#文件描述符-fd" class="headerlink" title="文件描述符(fd)"></a>文件描述符(fd)</h2><p><strong>文件描述符</strong>（File descriptor）是计算机科学中的一个术语，是一个用于表述指向<a href="https://zh.wikipedia.org/wiki/文件" target="_blank" rel="external">文件</a>的引用的抽象化概念。</p>
+<ul>
+<li>非负整数</li>
+<li>索引值–指向每一个进程所维护的文件描述符表</li>
+<li>每个进程在PCB（Process Control Block）中保存着一份文件描述符表</li>
+<li>打开或创建文件都会返回一个文件描述符</li>
+<li>Linux内核将所有外部设备都当做一个文件来操作</li>
+<li>对 socket 读写也同样有对应的描述符,称为 socketfd</li>
+<li>程序启动默认有三个描述符: 0(代表标准输入)，1(代表标准输出)，2(代表标准错误)</li>
+</ul>
+<h2 id="用户空间与内核空间"><a href="#用户空间与内核空间" class="headerlink" title="用户空间与内核空间`"></a>用户空间与内核空间`</h2><p>每一个应用打开操作系统(32 位)都会分配4g 的<code>虚拟存储空间(寻址空间)</code></p>
+<blockquote>
+<p>为了保证内核安全, 操作系统将虚拟空间划分为两个部分:内核空间,用户空间</p>
+</blockquote>
+<p><img src="http://mio4kon-pic.oss-cn-shanghai.aliyuncs.com/blog/84s88.jpg" alt="img"></p>
+<p>下面这张图大致描述了数据<strong>如何从外部存储设备向运行的程序中移动的过程</strong></p>
+<p><img src="http://mio4kon-pic.oss-cn-shanghai.aliyuncs.com/blog/zsu0h.png" alt="image-20190905175616737" style="zoom: 67%;"></p>
+<blockquote>
+<p>用户进程发起请求，内核接受到请求后，从I/O设备中获取数据到buffer中，再将buffer中的数据copy到用户进程的地址空间，该用户进程获取到数据后再响应客户端</p>
+</blockquote>
+<h2 id="Socket-网络编程"><a href="#Socket-网络编程" class="headerlink" title="Socket 网络编程"></a>Socket 网络编程</h2><p><img src="http://mio4kon-pic.oss-cn-shanghai.aliyuncs.com/blog/ed8z3.jpg" alt="img"></p>
+<h2 id="DMA-Direct-Memory-Access"><a href="#DMA-Direct-Memory-Access" class="headerlink" title="DMA(Direct Memory Access)"></a>DMA(<strong>D</strong>irect <strong>M</strong>emory <strong>A</strong>ccess)</h2><p>直接内存访问技术, 可以独立直接读写内存, 无需 CPU 介入处理, 在同等程度的处理器负担下，DMA是一种快速的数据传送方式。很多硬件的系统会使用DMA，包含<a href="https://zh.wikipedia.org/wiki/硬碟" target="_blank" rel="external">硬盘</a>控制器、<a href="https://zh.wikipedia.org/wiki/繪圖顯示卡" target="_blank" rel="external">绘图显卡</a>、<a href="https://zh.wikipedia.org/wiki/网络卡" target="_blank" rel="external">网卡</a>和<a href="https://zh.wikipedia.org/wiki/声卡" target="_blank" rel="external">声卡</a></p>
+<h1 id="Linux-I-O模型"><a href="#Linux-I-O模型" class="headerlink" title="Linux I/O模型"></a>Linux I/O模型</h1><p>这里指的是用户空间 I/O. 所以 ==I/O 过程== 分为两个阶段:</p>
+<ol>
+<li>等待数据准备就绪</li>
+<li>将数据从内核拷贝到进程中</li>
+</ol>
+<p>而 ==I/O模型== 主要分为下面五种:</p>
+<ul>
+<li>Blocking I/O</li>
+<li>Non-blocking I/O</li>
+<li>I/O multiplexing</li>
+<li>Asynchronous I/O</li>
+<li>Signal driven I/O</li>
+</ul>
+<h2 id="阻塞-I-O-模型-Blocking-I-O"><a href="#阻塞-I-O-模型-Blocking-I-O" class="headerlink" title="阻塞 I/O 模型(Blocking I/O)"></a>阻塞 I/O 模型(Blocking I/O)</h2><p>在 Linux 中所有的 socket文件描述符都默认是 Blocking 的.</p>
+<p><img src="http://mio4kon-pic.oss-cn-shanghai.aliyuncs.com/blog/xmwx7.jpg" alt="阻塞io"></p>
+<blockquote>
+<p>在用户空间调用 <code>recvfrom</code> ,系统会阻塞一直等待数据包到达并将数据复制到用户空间</p>
+</blockquote>
+<h2 id="非阻塞-I-O-模型-Non-blocking-I-O"><a href="#非阻塞-I-O-模型-Non-blocking-I-O" class="headerlink" title="非阻塞 I/O 模型(Non-blocking I/O)"></a>非阻塞 I/O 模型(Non-blocking I/O)</h2><p><img src="http://mio4kon-pic.oss-cn-shanghai.aliyuncs.com/blog/fcytl.jpg" alt="非阻塞io"></p>
+<blockquote>
+<p> 如果缓冲区没有数据, <code>recvfrom</code>会直接返回<code>EWOULDBLOCK</code>错误, 数据拷贝的过程仍旧是阻塞状态</p>
+</blockquote>
+<h2 id="I-O-多路复用模型-I-O-Multiplexing"><a href="#I-O-多路复用模型-I-O-Multiplexing" class="headerlink" title="I/O 多路复用模型(I/O Multiplexing)"></a>I/O 多路复用模型(I/O Multiplexing)</h2><p><img src="http://mio4kon-pic.oss-cn-shanghai.aliyuncs.com/blog/rfmjb.jpg" alt="IO多路复用"></p>
+<p>Linux 提供 <code>select、poll、epoll</code>，进程通过将一个或者多个 fd 传递给 <code>select、poll、epoll</code> 系统调用，==阻塞在 select 操作（这个是内核级别的调用）上==，这样的话，可以同时监听多个 fd 是否处于就绪状态。其中</p>
+<ul>
+<li><code>select/poll</code> 是顺序扫描 fd 是否就绪，而且支持的 fd 数量有限</li>
+<li><code>epoll</code> 是基于事件驱动方式代替顺序扫描性能更高</li>
+</ul>
+<blockquote>
+<p>以 <code>select</code> 方法为例, <code>select</code>方法会阻塞整个进程, 而且可以看到相对于阻塞 IO,多了一个 system call ，所以如果连接数并不高, 那么它==并不一定比使用多线程+阻塞 IO的性能好==, 它最大的优势就是可以同时处理多个连接。</p>
+</blockquote>
+<h2 id="信号驱动-I-O-Signal-Driven-I-O"><a href="#信号驱动-I-O-Signal-Driven-I-O" class="headerlink" title="信号驱动 I/O(Signal Driven I/O)"></a>信号驱动 I/O(Signal Driven I/O)</h2><p><img src="http://mio4kon-pic.oss-cn-shanghai.aliyuncs.com/blog/zabc1.jpg" alt="信号驱动IO"></p>
+<p>首先需要开启 socket 信号驱动 IO 功能，并通过系统调用 <code>sigaction</code> 执行一个信号处理函数（非阻塞，立即返回）。当数据就绪时，会为该进程生成一个 SIGIO 信号，通过信号回调通知应用程序调用 <code>recvfrom</code> 来读取数据，并通知主循环喊出处理数据</p>
+<blockquote>
+<p>种 I/O 模型存在一个非常重大的<strong>缺陷问题</strong>：<code>SIGIO</code> 这种信号对于每个进程来说只有一个！如果使该信号对进程中的两个描述符（这两个文件描述符都等待着 I/O 操作）都起作用，那么进程在接到此信号后就无法判别是哪一个文件描述符准备好了。所以 <strong>Signal Driven I/O</strong> 模型在现实中用的非常少</p>
+</blockquote>
+<h2 id="异步-I-O-模型-Asynchronous-I-O"><a href="#异步-I-O-模型-Asynchronous-I-O" class="headerlink" title="异步 I/O 模型(Asynchronous I/O)"></a>异步 I/O 模型(Asynchronous I/O)</h2><p><img src="http://mio4kon-pic.oss-cn-shanghai.aliyuncs.com/blog/6q8jd.jpg" alt="AIO" style="zoom:60%;"></p>
+<p>用户进程通过 <code>aio_read()</code> 函数进行读取操作时，就可以立刻返回到进程中，接着执行其他的操作。从 kernel 的角度来看，当它收到 <strong>asynchronous read</strong> 操作时，它会立刻返回，并不会阻塞用户进程。然后，kernel 会等待数据准备完成，接着将数据拷贝到用户空间进程的缓冲区中。当这一切都完成之后，kernel 会给用户发送一个 signal 通知用户空间的进程，告诉它 read 操作完成了。</p>
+<blockquote>
+<p>Asynchronous I/O 操作最大的特点就是整个 I/O 操作流程中，用户进程始终没有被 block</p>
+</blockquote>
+<h1 id="五种-I-O-模型对比"><a href="#五种-I-O-模型对比" class="headerlink" title="五种 I/O 模型对比"></a>五种 I/O 模型对比</h1><p><img src="http://mio4kon-pic.oss-cn-shanghai.aliyuncs.com/blog/ntx3y.jpg" alt="对比" style="zoom: 60%;"></p>
+<p>POSIX中定义同步 I/O (Synchronous I/O) 和异步 I/O (Asynchronous I/O)区别在于 <code>IO operation</code>的时候是否将用户空间阻塞.</p>
+<p>所以基于此定义的话, 前 4 种 I/O 模型实际上都是同步 I/O, 只有 AIO 是真正意义上的异步 I/O</p>
+<h1 id="JAVA-实践"><a href="#JAVA-实践" class="headerlink" title="JAVA 实践"></a>JAVA 实践</h1><h2 id="BIO"><a href="#BIO" class="headerlink" title="BIO"></a>BIO</h2><p>使用的是传统的 <code>java.io</code>包, 它是基于==流模型==实现. 交互方式是同步阻塞方式</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">int</span> port = <span class="number">4343</span>; <span class="comment">//端口号</span></div><div class="line"><span class="comment">// Socket 服务器端（简单的发送信息）</span></div><div class="line">Thread sThread = <span class="keyword">new</span> Thread(<span class="keyword">new</span> Runnable() &#123;</div><div class="line">    <span class="meta">@Override</span></div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">run</span><span class="params">()</span> </span>&#123;</div><div class="line">        <span class="keyword">try</span> &#123;</div><div class="line">            ServerSocket serverSocket = <span class="keyword">new</span> ServerSocket(port);</div><div class="line">            <span class="keyword">while</span> (<span class="keyword">true</span>) &#123;</div><div class="line">                <span class="comment">// 等待连接</span></div><div class="line">                Socket socket = serverSocket.accept();</div><div class="line">                Thread sHandlerThread = <span class="keyword">new</span> Thread(<span class="keyword">new</span> Runnable() &#123;</div><div class="line">                    <span class="meta">@Override</span></div><div class="line">                    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">run</span><span class="params">()</span> </span>&#123;</div><div class="line">                        <span class="keyword">try</span> (PrintWriter printWriter = <span class="keyword">new</span> PrintWriter(socket.getOutputStream())) &#123;</div><div class="line">                            printWriter.println(<span class="string">"hello world！"</span>);</div><div class="line">                            printWriter.flush();</div><div class="line">                        &#125; <span class="keyword">catch</span> (IOException e) &#123;</div><div class="line">                            e.printStackTrace();</div><div class="line">                        &#125;</div><div class="line">                    &#125;</div><div class="line">                &#125;);</div><div class="line">                sHandlerThread.start();</div><div class="line">            &#125;</div><div class="line">        &#125; <span class="keyword">catch</span> (IOException e) &#123;</div><div class="line">            e.printStackTrace();</div><div class="line">        &#125;</div><div class="line">    &#125;</div><div class="line">&#125;);</div><div class="line">sThread.start();</div><div class="line"></div><div class="line"><span class="comment">// Socket 客户端（接收信息并打印）</span></div><div class="line"><span class="keyword">try</span> (Socket cSocket = <span class="keyword">new</span> Socket(InetAddress.getLocalHost(), port)) &#123;</div><div class="line">    BufferedReader bufferedReader = <span class="keyword">new</span> BufferedReader(<span class="keyword">new</span> InputStreamReader(cSocket.getInputStream()));</div><div class="line">    bufferedReader.lines().forEach(s -&gt; System.out.println(<span class="string">"客户端："</span> + s));&#125; <span class="keyword">catch</span> (UnknownHostException e) &#123;</div><div class="line">    e.printStackTrace();</div><div class="line">&#125; <span class="keyword">catch</span> (IOException e) &#123;</div><div class="line">    e.printStackTrace();</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p><img src="http://mio4kon-pic.oss-cn-shanghai.aliyuncs.com/blog/u9eft.jpg" alt="img"></p>
+<h2 id="NIO"><a href="#NIO" class="headerlink" title="NIO"></a>NIO</h2><p>使用的是 java1.4 引入的 <code>java.nio</code>包, 提供了<code>Channel、Selector、Buffer</code> 等新的抽象，可以构建多路复用的、同步非阻塞 IO 程序，同时提供了更接近操作系统底层高性能的数据操作方式</p>
+<blockquote>
+<p>NIO 有两个比较核心的对象 <code>通道</code>和 <code>缓冲区</code>, </p>
+<p><strong>通道区别于流</strong>: 流是单向的, 而通道是双向的(即可以用于读也可以用于写)</p>
+<p><strong>缓冲区区别于流</strong>: 面向流的 I/O, 数据是直接写入或直接读到 <code>Stream</code> 对象中的, 而NIO 的话,是将数据写入或读取到<code>缓冲区Buffer</code>中的.</p>
+</blockquote>
+<p><img src="http://mio4kon-pic.oss-cn-shanghai.aliyuncs.com/blog/k93x1.jpg" alt="IO"></p>
+<p><img src="http://mio4kon-pic.oss-cn-shanghai.aliyuncs.com/blog/74wz1.jpg" alt="Java_NIO"></p>
+<blockquote>
+<p><code>选择器(Selector)</code> 主要是允许单线程多通道,一般在高并发下使用</p>
+</blockquote>
+<p><img src="http://mio4kon-pic.oss-cn-shanghai.aliyuncs.com/blog/viewf.jpg" alt="overview-selectors.png"></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div></pre></td><td class="code"><pre><div class="line"><span class="comment">// NIO SocketChannel</span></div><div class="line">ThreadPoolExecutor threadPool = <span class="keyword">new</span> ThreadPoolExecutor(<span class="number">4</span>, <span class="number">4</span>,</div><div class="line">        <span class="number">60L</span>, TimeUnit.SECONDS, <span class="keyword">new</span> LinkedBlockingQueue&lt;Runnable&gt;());</div><div class="line">threadPool.execute(<span class="keyword">new</span> Runnable() &#123;</div><div class="line">    <span class="meta">@Override</span></div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">run</span><span class="params">()</span> </span>&#123;</div><div class="line">        <span class="keyword">try</span> (Selector selector = Selector.open();</div><div class="line">            ServerSocketChannel serverSocketChannel = ServerSocketChannel.open();) &#123;</div><div class="line">            serverSocketChannel.bind(<span class="keyword">new</span> InetSocketAddress(InetAddress.getLocalHost(), port));</div><div class="line">            serverSocketChannel.configureBlocking(<span class="keyword">false</span>);</div><div class="line">            serverSocketChannel.register(selector, SelectionKey.OP_ACCEPT);</div><div class="line">            <span class="keyword">while</span> (<span class="keyword">true</span>) &#123;</div><div class="line">                selector.select(); <span class="comment">// 阻塞等待就绪的Channel</span></div><div class="line">                Set&lt;SelectionKey&gt; selectionKeys = selector.selectedKeys();</div><div class="line">                Iterator&lt;SelectionKey&gt; iterator = selectionKeys.iterator();</div><div class="line">                <span class="keyword">while</span> (iterator.hasNext()) &#123;</div><div class="line">                    SelectionKey key = iterator.next();</div><div class="line">                    <span class="keyword">try</span> (SocketChannel channel = ((ServerSocketChannel) key.channel()).accept()) &#123;</div><div class="line">                        channel.write(Charset.defaultCharset().encode(<span class="string">"你好，世界"</span>));</div><div class="line">                    &#125;</div><div class="line">                    iterator.remove();</div><div class="line">                &#125;</div><div class="line">            &#125;</div><div class="line">        &#125; <span class="keyword">catch</span> (IOException e) &#123;</div><div class="line">            e.printStackTrace();</div><div class="line">        &#125;</div><div class="line">    &#125;</div><div class="line">&#125;);</div><div class="line"><span class="comment">// Socket 客户端（接收信息并打印）</span></div><div class="line"><span class="keyword">try</span> (Socket cSocket = <span class="keyword">new</span> Socket(InetAddress.getLocalHost(), port)) &#123;</div><div class="line">    BufferedReader bufferedReader = <span class="keyword">new</span> BufferedReader(<span class="keyword">new</span> InputStreamReader(cSocket.getInputStream()));</div><div class="line">    bufferedReader.lines().forEach(s -&gt; System.out.println(<span class="string">"NIO 客户端："</span> + s));</div><div class="line">&#125; <span class="keyword">catch</span> (IOException e) &#123;</div><div class="line">    e.printStackTrace();</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p><img src="http://mio4kon-pic.oss-cn-shanghai.aliyuncs.com/blog/7prpx.jpg" alt="img"></p>
+<h2 id="AIO-NIO-2"><a href="#AIO-NIO-2" class="headerlink" title="AIO(NIO.2)"></a>AIO(NIO.2)</h2><p>使用的是Java 1.7 之后引入的包，是 NIO 的升级版本，提供了异步非堵塞的 IO 操作方式，所以人们叫它 AIO（Asynchronous IO），异步 IO 是基于事件和回调机制实现的，也就是应用操作之后会直接返回，不会堵塞在那里，当后台处理完成，操作系统会通知相应的线程进行后续的操作。</p>
+<blockquote>
+<p>AIO的API允许两种方式来处理异步操作的结果：返回的<code>Future模式</code>或者<code>注册CompletionHandler</code></p>
+</blockquote>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div><div class="line">53</div><div class="line">54</div><div class="line">55</div><div class="line">56</div><div class="line">57</div><div class="line">58</div><div class="line">59</div><div class="line">60</div><div class="line">61</div><div class="line">62</div><div class="line">63</div><div class="line">64</div><div class="line">65</div><div class="line">66</div></pre></td><td class="code"><pre><div class="line"><span class="comment">// Service</span></div><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Server</span> </span>&#123;</div><div class="line">    <span class="keyword">private</span> <span class="keyword">static</span> Charset charset = Charset.forName(<span class="string">"US-ASCII"</span>);</div><div class="line">    <span class="keyword">private</span> <span class="keyword">static</span> CharsetEncoder encoder = charset.newEncoder();</div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> <span class="keyword">throws</span> Exception </span>&#123;</div><div class="line">        AsynchronousChannelGroup group = AsynchronousChannelGroup.withThreadPool(Executors.newFixedThreadPool(<span class="number">4</span>));</div><div class="line">        AsynchronousServerSocketChannel server = AsynchronousServerSocketChannel.open(group).bind(<span class="keyword">new</span> InetSocketAddress(<span class="string">"0.0.0.0"</span>, <span class="number">8013</span>));</div><div class="line">        server.accept(<span class="keyword">null</span>, <span class="keyword">new</span> CompletionHandler&lt;AsynchronousSocketChannel, Void&gt;() &#123;</div><div class="line">            <span class="meta">@Override</span></div><div class="line">            <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">completed</span><span class="params">(AsynchronousSocketChannel result, Void attachment)</span> </span>&#123;</div><div class="line">                System.out.println(<span class="string">"accept new Client"</span>);</div><div class="line">                server.accept(<span class="keyword">null</span>, <span class="keyword">this</span>); <span class="comment">// 接受下一个连接</span></div><div class="line">                <span class="keyword">try</span> &#123;</div><div class="line">                    String now = <span class="keyword">new</span> Date().toString();</div><div class="line">                    ByteBuffer buffer = encoder.encode(CharBuffer.wrap(now + <span class="string">"\r\n"</span>));</div><div class="line">                    <span class="comment">//result.write(buffer, null, new CompletionHandler&lt;Integer,Void&gt;()&#123;...&#125;); //callback or</span></div><div class="line">                    Future&lt;Integer&gt; f = result.write(buffer);</div><div class="line">                    f.get();</div><div class="line">                    System.out.println(<span class="string">"sent to client: "</span> + now);</div><div class="line">                    result.close();</div><div class="line">                &#125; <span class="keyword">catch</span> (IOException | InterruptedException | ExecutionException e) &#123;</div><div class="line">                    e.printStackTrace();</div><div class="line">                &#125;</div><div class="line">            &#125;</div><div class="line"></div><div class="line">            <span class="meta">@Override</span></div><div class="line">            <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">failed</span><span class="params">(Throwable exc, Void attachment)</span> </span>&#123;</div><div class="line">                exc.printStackTrace();</div><div class="line">            &#125;</div><div class="line">        &#125;);</div><div class="line">        System.out.println(<span class="string">"Server Main Finish"</span>);</div><div class="line">        group.awaitTermination(Long.MAX_VALUE, TimeUnit.SECONDS);</div><div class="line"></div><div class="line">    &#125;</div><div class="line">&#125;</div><div class="line"></div><div class="line"><span class="comment">// Client</span></div><div class="line"><span class="class"><span class="keyword">class</span> <span class="title">Client</span> </span>&#123;</div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> <span class="keyword">throws</span> Exception </span>&#123;</div><div class="line">        AsynchronousSocketChannel client = AsynchronousSocketChannel.open();</div><div class="line">        Future&lt;Void&gt; future = client.connect(<span class="keyword">new</span> InetSocketAddress(<span class="string">"127.0.0.1"</span>, <span class="number">8013</span>));</div><div class="line">        future.get();</div><div class="line"></div><div class="line">        ByteBuffer buffer = ByteBuffer.allocate(<span class="number">100</span>);</div><div class="line">        client.read(buffer, <span class="keyword">null</span>, <span class="keyword">new</span> CompletionHandler&lt;Integer, Void&gt;() &#123;</div><div class="line">            <span class="meta">@Override</span></div><div class="line">            <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">completed</span><span class="params">(Integer result, Void attachment)</span> </span>&#123;</div><div class="line">                System.out.println(<span class="string">"client received: "</span> + <span class="keyword">new</span> String(buffer.array()));</div><div class="line">            &#125;</div><div class="line"></div><div class="line">            <span class="meta">@Override</span></div><div class="line">            <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">failed</span><span class="params">(Throwable exc, Void attachment)</span> </span>&#123;</div><div class="line">                exc.printStackTrace();</div><div class="line">                <span class="keyword">try</span> &#123;</div><div class="line">                    client.close();</div><div class="line">                &#125; <span class="keyword">catch</span> (IOException e) &#123;</div><div class="line">                    e.printStackTrace();</div><div class="line">                &#125;</div><div class="line"></div><div class="line">            &#125;</div><div class="line">        &#125;);</div><div class="line"></div><div class="line">        Thread.sleep(<span class="number">10000</span>);</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<h2 id="文件读写-BIO-vs-NIO"><a href="#文件读写-BIO-vs-NIO" class="headerlink" title="文件读写 BIO vs NIO"></a>文件读写 BIO vs NIO</h2><p>300M文件读写对比</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:center">BIO 写</th>
+<th style="text-align:center">NIO 写</th>
+<th style="text-align:center">BIO 读</th>
+<th style="text-align:center">NIO 读</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center">362</td>
+<td style="text-align:center">376</td>
+<td style="text-align:center">403</td>
+<td style="text-align:center">366</td>
+</tr>
+<tr>
+<td style="text-align:center">376</td>
+<td style="text-align:center">218</td>
+<td style="text-align:center">289</td>
+<td style="text-align:center">367</td>
+</tr>
+<tr>
+<td style="text-align:center">386</td>
+<td style="text-align:center">397</td>
+<td style="text-align:center">439</td>
+<td style="text-align:center">497</td>
+</tr>
+<tr>
+<td style="text-align:center">823</td>
+<td style="text-align:center">227</td>
+<td style="text-align:center">308</td>
+<td style="text-align:center">255</td>
+</tr>
+<tr>
+<td style="text-align:center">353</td>
+<td style="text-align:center">316</td>
+<td style="text-align:center">244</td>
+<td style="text-align:center">340</td>
+</tr>
+<tr>
+<td style="text-align:center">508</td>
+<td style="text-align:center">406</td>
+<td style="text-align:center">832</td>
+<td style="text-align:center">381</td>
+</tr>
+<tr>
+<td style="text-align:center">348</td>
+<td style="text-align:center">214</td>
+<td style="text-align:center">244</td>
+<td style="text-align:center">445</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p>对于单线程读写 <code>IO的性能</code>来看的话, BIO 和 NIO 的区别并不是很大, 主要还是 NIO 在高并发的情况下可以利用 <code>Selector</code> 做多路复用</p>
+<p>NIO还有一个优势就是能够方便的对缓冲区进行操作,具有一定的灵活性. 如果是在流数据中做读取的前后移动就需要自己将数据先放到缓冲区里</p>
+</blockquote>
+<p><a href="https://howtodoinjava.com/java/io/difference-between-standard-io-and-nio/" target="_blank" rel="external">https://howtodoinjava.com/java/io/difference-between-standard-io-and-nio/</a></p>
+<h1 id="零拷贝技术"><a href="#零拷贝技术" class="headerlink" title="零拷贝技术"></a>零拷贝技术</h1><h2 id="为什么需要零拷贝"><a href="#为什么需要零拷贝" class="headerlink" title="为什么需要零拷贝"></a>为什么需要零拷贝</h2><p>为了<code>快</code>和<code>节约资源</code></p>
+<p>尤其是在网络编程中,客户端越来越多, 视频类应用也越来越多, 这对于服务端来说很容易造成性能瓶颈. 比如当服务器写给客户端文件时,操作系统需要将数据从应用空间拷贝到内核缓冲区. 这种数据拷贝操作不仅占用 cpu 时间片,还占用了额外的内存带宽.</p>
+<p><strong>两个系统调用中的拷贝过程</strong></p>
+<p><img src="http://mio4kon-pic.oss-cn-shanghai.aliyuncs.com/blog/bqcpz.jpg" alt="零拷贝-1" style="zoom:150%;"></p>
+<ul>
+<li>Step1: 调用 <code>read</code> 方法导致上下文从用户模式切换到了内核模式.DMA 引擎从磁盘读取内容并拷贝到内核空间缓冲区中</li>
+<li>Step2: 将数据从内核缓冲区复制到用户缓冲区, 并且<code>read</code>系统调用返回. 此时上下文从内核切换回用户模式.现在数据存在用户空间缓冲区中.</li>
+<li>Step3: <code>write</code>方法导致上下文从用户模式切换到了内核模式, 执行第三次复制,再次将数据放入内核缓冲区.</li>
+<li>Step4: <code>write</code>调用返回, 此时第四次上下文切换,切换回用户模式. 同时 DMA 引擎将数据从内核缓冲区传递到协议引擎,发生第四次复制.</li>
+</ul>
+<h2 id="如何避免"><a href="#如何避免" class="headerlink" title="如何避免"></a>如何避免</h2><h3 id="mmap"><a href="#mmap" class="headerlink" title="mmap"></a>mmap</h3><blockquote>
+<p>对应 <code>java.nio.channels.FileChannel.map</code>方法</p>
+</blockquote>
+<p>利用<code>mmap</code>替代 <code>read</code> </p>
+<p><img src="http://mio4kon-pic.oss-cn-shanghai.aliyuncs.com/blog/cvrr7.jpg" alt="mmap" style="zoom:150%;"></p>
+<p>如图,使用<code>mmap</code> 并不会减少上下文切换,但是可以通过替换 <code>read</code>的方式减少一次内核到用户的拷贝. </p>
+<p>当然使用<code>mmap</code>来替代<code>write</code>同样也可以减少一次拷贝,但是会存在隐患,  当在使用 <code>mmap</code> 进行写时, 这个文件被另一个进程截断(truncate)时候, 会因为访问非法地址而被<code>SIGBUS</code>信号终止, 所以需要通过下面两个解决方案规避这种问题:</p>
+<ol>
+<li>为SIGBUS信号建立处理程序</li>
+<li>使用文件租借锁, 这样当其他进程想要截断文件时会收到<code>RT_SIGNAL_LEASE</code>信号</li>
+</ol>
+<h3 id="sendfile"><a href="#sendfile" class="headerlink" title="sendfile"></a>sendfile</h3><blockquote>
+<p>对于<code>java.nio.channels.FileChannel.transferTo</code>方法</p>
+</blockquote>
+<p>Linux 内核 2.1 之后引入了 <code>sendfile</code>系统方法.用来简化操作.</p>
+<p><img src="http://mio4kon-pic.oss-cn-shanghai.aliyuncs.com/blog/l6h9r.jpg" alt="sendfile" style="zoom:150%;"></p>
+<p><code>sendfile</code>不仅减少了数据的拷贝, 还减少了上下文切换. 而且<strong>通过硬件的帮助,可以提供支持聚集操作的网络接口(等待传输的数据不需要在连续的内存空间, 这些数据可以分散在存储器的各个位置)</strong> , 在内核版本2.4中修改了socket 缓冲区描述符来适应这些功能.</p>
+<p>对于应用程序来说使用上并没有什么改变: <code>sendfile(int out_fd, int in_fd, off_t *offset, size_t count)</code></p>
+<p><img src="http://mio4kon-pic.oss-cn-shanghai.aliyuncs.com/blog/q6x6r.jpg" alt="sendfile2" style="zoom:150%;"></p>
+<p>此时已经没有数据拷贝到 socket 缓冲区, 只有数据的位置和长度的信息附加到 socket 缓冲区.</p>
+<blockquote>
+<p>此时数据已经不会在内核缓冲区之间来回拷贝,所以对于操作系统来说:此时已经是<code>零拷贝</code>了</p>
+</blockquote>
+<h3 id="splice"><a href="#splice" class="headerlink" title="splice"></a>splice</h3><p><code>splice</code> 与 <code>sendfile</code> 类似, 但<code>sendfile</code>方法有个局限性, 他的参数 <strong>out_fd 必须指向 socket</strong> . 从 <code>sendfile</code> 的方法描述也很容易看出来:<code>sendfile -- send a file to a socket</code></p>
+<p>而<code>splice</code>不局限于 socket, 它可以用于两个文件描述符中的数据移动, 但是必须要有一方是管道设备, 这是因为它是利用了 Linux 的<code>管道缓冲区</code>机制.</p>
+
+
+                <hr>
+
+                
+
+                <ul class="pager">
+                    
+                    
+                        <li class="next">
+                            <a href="/2019/04/12/OkHttp Http:1.x 与 Http:2.0 相关源码分析/" data-toggle="tooltip" data-placement="top" title="OkHttp Http/1.x 与 Http/2.0 相关源码分析">Next Post &rarr;</a>
+                        </li>
+                    
+                </ul>
+
+                
+
+                
+                <!-- disqus 评论框 start -->
+                <div class="comment">
+                    <div id="disqus_thread" class="disqus-thread"></div>
+                </div>
+                <!-- disqus 评论框 end -->
+                
+
+            </div>
+    <!-- Side Catalog Container -->
+        
+            <div class="
+                col-lg-2 col-lg-offset-0
+                visible-lg-block
+                sidebar-container
+                catalog-container">
+                <div class="side-catalog">
+                    <hr class="hidden-sm hidden-xs">
+                    <h5>
+                        <a class="catalog-toggle" href="#">CATALOG</a>
+                    </h5>
+                    <ul class="catalog-body"></ul>
+                </div>
+            </div>
+        
+
+    <!-- Sidebar Container -->
+
+            <div class="
+                col-lg-8 col-lg-offset-2
+                col-md-10 col-md-offset-1
+                sidebar-container">
+
+                <!-- Featured Tags -->
+                
+                <section>
+                    <!-- no hr -->
+                    <h5><a href="/tags/">FEATURED TAGS</a></h5>
+                    <div class="tags">
+                       
+                          <a class="tag" href="/tags/#Linux" title="Linux">Linux</a>
+                        
+                    </div>
+                </section>
+                
+
+                <!-- Friends Blog -->
+                
+                <hr>
+                <h5>FRIENDS</h5>
+                <ul class="list-inline">
+
+                    
+                        <li><a href="http://lrd.ele.me/" target="_blank">lrd ele&#39;s Blog</a></li>
+                    
+                </ul>
+                
+            </div>
+
+        </div>
+    </div>
+</article>
+
+
+
+
+<!-- disqus 公共JS代码 start (一个网页只需插入一次) -->
+<script type="text/javascript">
+    /* * * CONFIGURATION VARIABLES * * */
+    var disqus_shortname = "hexo-theme-huxblog";
+    var disqus_identifier = "https://miokon.cn/2019/08/11/深入浅析 Linux IO模型/";
+    var disqus_url = "https://miokon.cn/2019/08/11/深入浅析 Linux IO模型/";
+
+    (function() {
+        var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+        dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+        (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    })();
+</script>
+<!-- disqus 公共JS代码 end -->
+
+
+
+
+<!-- async load function -->
+<script>
+    function async(u, c) {
+      var d = document, t = 'script',
+          o = d.createElement(t),
+          s = d.getElementsByTagName(t)[0];
+      o.src = u;
+      if (c) { o.addEventListener('load', function (e) { c(null, e); }, false); }
+      s.parentNode.insertBefore(o, s);
+    }
+</script>
+<!-- anchor-js, Doc:http://bryanbraun.github.io/anchorjs/ -->
+<script>
+    async("https://cdn.bootcss.com/anchor-js/1.1.1/anchor.min.js",function(){
+        anchors.options = {
+          visible: 'always',
+          placement: 'right',
+          icon: '#'
+        };
+        anchors.add().remove('.intro-header h1').remove('.subheading').remove('.sidebar-container h5');
+    })
+</script>
+<style>
+    /* place left on bigger screen */
+    @media all and (min-width: 800px) {
+        .anchorjs-link{
+            position: absolute;
+            left: -0.75em;
+            font-size: 1.1em;
+            margin-top : -0.1em;
+        }
+    }
+</style>
+
+
+
+    <!-- Footer -->
+    <!-- Footer -->
+<footer>
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                <ul class="list-inline text-center">
+                
+                
+                
+
+                
+                    <li>
+                        <a target="_blank" href="http://weibo.com/u/3198010790">
+                            <span class="fa-stack fa-lg">
+                                <i class="fa fa-circle fa-stack-2x"></i>
+                                <i class="fa fa-weibo fa-stack-1x fa-inverse"></i>
+                            </span>
+                        </a>
+                    </li>
+                
+
+                
+
+                
+                    <li>
+                        <a target="_blank"  href="https://github.com/Mio4kon">
+                            <span class="fa-stack fa-lg">
+                                <i class="fa fa-circle fa-stack-2x"></i>
+                                <i class="fa fa-github fa-stack-1x fa-inverse"></i>
+                            </span>
+                        </a>
+                    </li>
+                
+
+                
+
+                </ul>
+                <p class="copyright text-muted">
+                    Copyright &copy; Mio4kon 2020 
+                    <br>
+                    Theme by <a href="http://huangxuan.me">Hux</a> 
+                    <span style="display: inline-block; margin: 0 5px;">
+                        <i class="fa fa-heart"></i>
+                    </span> 
+                    Ported by <a href="http://blog.kaijun.rocks">Kaijun</a> | 
+                    <iframe
+                        style="margin-left: 2px; margin-bottom:-5px;"
+                        frameborder="0" scrolling="0" width="91px" height="20px"
+                        src="https://ghbtns.com/github-btn.html?user=kaijun&repo=hexo-theme-huxblog&type=star&count=true" >
+                    </iframe>
+                </p>
+            </div>
+        </div>
+    </div>
+</footer>
+
+<!-- jQuery -->
+<script src="/js/jquery.min.js"></script>
+
+<!-- Bootstrap Core JavaScript -->
+<script src="/js/bootstrap.min.js"></script>
+
+<!-- Custom Theme JavaScript -->
+<script src="/js/hux-blog.min.js"></script>
+
+
+<!-- async load function -->
+<script>
+    function async(u, c) {
+      var d = document, t = 'script',
+          o = d.createElement(t),
+          s = d.getElementsByTagName(t)[0];
+      o.src = u;
+      if (c) { o.addEventListener('load', function (e) { c(null, e); }, false); }
+      s.parentNode.insertBefore(o, s);
+    }
+</script>
+
+<!-- 
+     Because of the native support for backtick-style fenced code blocks 
+     right within the Markdown is landed in Github Pages, 
+     From V1.6, There is no need for Highlight.js, 
+     so Huxblog drops it officially.
+
+     - https://github.com/blog/2100-github-pages-now-faster-and-simpler-with-jekyll-3-0  
+     - https://help.github.com/articles/creating-and-highlighting-code-blocks/    
+-->
+<!--
+    <script>
+        async("http://cdn.bootcss.com/highlight.js/8.6/highlight.min.js", function(){
+            hljs.initHighlightingOnLoad();
+        })
+    </script>
+    <link href="http://cdn.bootcss.com/highlight.js/8.6/styles/github.min.css" rel="stylesheet">
+-->
+
+
+<!-- jquery.tagcloud.js -->
+<script>
+    // only load tagcloud.js in tag.html
+    if($('#tag_cloud').length !== 0){
+        async("https://miokon.cn/js/jquery.tagcloud.js",function(){
+            $.fn.tagcloud.defaults = {
+                //size: {start: 1, end: 1, unit: 'em'},
+                color: {start: '#bbbbee', end: '#0085a1'},
+            };
+            $('#tag_cloud a').tagcloud();
+        })
+    }
+</script>
+
+<!--fastClick.js -->
+<script>
+    async("https://cdn.bootcss.com/fastclick/1.0.6/fastclick.min.js", function(){
+        var $nav = document.querySelector("nav");
+        if($nav) FastClick.attach($nav);
+    })
+</script>
+
+
+<!-- Google Analytics -->
+
+
+
+
+<!-- Baidu Tongji -->
+
+
+<!-- Side Catalog -->
+
+<script type="text/javascript">
+    function generateCatalog (selector) {
+        var P = $('div.post-container'),a,n,t,l,i,c;
+        a = P.find('h1,h2,h3,h4,h5,h6');
+        a.each(function () {
+            n = $(this).prop('tagName').toLowerCase();
+            i = "#"+$(this).prop('id');
+            t = $(this).text();
+            c = $('<a href="'+i+'" rel="nofollow">'+t+'</a>');
+            l = $('<li class="'+n+'_nav"></li>').append(c);
+            $(selector).append(l);
+        });
+        return true;    
+    }
+
+    generateCatalog(".catalog-body");
+
+    // toggle side catalog
+    $(".catalog-toggle").click((function(e){
+        e.preventDefault();
+        $('.side-catalog').toggleClass("fold")
+    }))
+
+    /*
+     * Doc: https://github.com/davist11/jQuery-One-Page-Nav
+     * Fork by Hux to support padding
+     */
+    async("/js/jquery.nav.js", function () {
+        $('.catalog-body').onePageNav({
+            currentClass: "active",
+            changeHash: !1,
+            easing: "swing",
+            filter: "",
+            scrollSpeed: 700,
+            scrollOffset: 0,
+            scrollThreshold: .2,
+            begin: null,
+            end: null,
+            scrollChange: null,
+            padding: 80
+        });
+    });
+</script>
+
+
+
+
+
+<!-- Image to hack wechat -->
+<img src="https://miokon.cn/img/icon_wechat.png" width="0" height="0" />
+<!-- Migrate from head to bottom, no longer block render and still work -->
+
+</body>
+
+</html>

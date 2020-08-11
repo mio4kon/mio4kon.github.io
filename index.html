@@ -90,14 +90,14 @@
 
                         
                         <li>
-                            <a href="/about/">About</a>
+                            <a href="/archives/">Archives</a>
                         </li>
                         
                     
 
                         
                         <li>
-                            <a href="/archives/">Archives</a>
+                            <a href="/about/">About</a>
                         </li>
                         
                     
@@ -181,6 +181,34 @@
             
                 <!-- Main Content -->
 
+
+<div class="post-preview">
+
+    <a href="/2019/08/11/深入浅析 Linux IO模型/">
+        <h2 class="post-title">
+            深入浅析 Linux IO模型相关内容
+        </h2>
+        <h3 class="post-subtitle">
+            Linux IO
+        </h3>
+        <div class="post-content-preview">
+            前置概念文件描述符(fd)文件描述符（File descriptor）是计算机科学中的一个术语，是一个用于表述指向文件的引用的抽象化概念。
+
+非负整数
+索引值–指向每一个进程所维护的文件描述符表
+每个进程在PCB（Process Control Block）中保存着一份文件描述符表
+打开或创建文件都会返回一个文件描述符
+Linux内核将所有外部设备都当做一个文件来操作
+对 socket 读写......
+        </div>
+    </a>
+    <p class="post-meta">
+        Posted by Mio4kon on
+        2019-08-11
+    </p>
+
+</div>
+<hr>
 
 <div class="post-preview">
 
@@ -443,37 +471,6 @@ test/......
 </div>
 <hr>
 
-<div class="post-preview">
-
-    <a href="/2017/04/13/移动端自动化测试系列之四——生成定位元素/">
-        <h2 class="post-title">
-            移动端自动化测试系列之四——生成定位元素
-        </h2>
-        <h3 class="post-subtitle">
-            优雅的生成定位元素
-        </h3>
-        <div class="post-content-preview">
-            前言之所以把定位元素单独拎出来说,是因为我觉得在写移动端测试框架的时候,如果处理不好的话,元素的定位是比较麻烦的事情.
-如果对 Appium 稍微了解的童鞋一定知道定位元素的方式有很多种:
-
-id
-name
-xpath
-tag_name
-…
-
-这么多的查找方式如果都写在代码中如下:
-12345find_elements_by_id(R.id.login)find_elements_by_na......
-        </div>
-    </a>
-    <p class="post-meta">
-        Posted by Mio4kon on
-        2017-04-13
-    </p>
-
-</div>
-<hr>
-
 
 
 <!-- Pager -->
@@ -527,8 +524,6 @@ tag_name
                             
                         
                             
-                        
-                            
                             <a href="/tags/#Kotlin" title="Kotlin" rel="2">Kotlin</a>
                             
                         
@@ -537,9 +532,11 @@ tag_name
                             
                         
                             
-                            <a href="/tags/#Material Design" title="Material Design" rel="3">Material Design</a>
+                        
                             
                         
+                            
+                            <a href="/tags/#Material Design" title="Material Design" rel="3">Material Design</a>
                             
                         
                             
@@ -566,6 +563,8 @@ tag_name
                         
                             
                             <a href="/tags/#源码分析" title="源码分析" rel="2">源码分析</a>
+                            
+                        
                             
                         
                     </div>
