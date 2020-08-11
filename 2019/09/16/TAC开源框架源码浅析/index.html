@@ -1,0 +1,552 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<!-- Head tag -->
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="google-site-verification" content="xBT4GhYoi5qRD5tr338pgPM5OWHHIDR6mNg1a3euekI" />
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="android mio4kon mio">
+    <meta name="keyword"  content="">
+    <link rel="shortcut icon" href="/img/favicon.ico">
+
+    <title>
+        
+          TAC开源框架源码浅析 - Mio4kon的博客 | Mio4kon&#39;s Blog
+        
+    </title>
+
+    <link rel="canonical" href="https://miokon.cn/2019/09/16/TAC开源框架源码浅析/">
+
+    <!-- Bootstrap Core CSS -->
+    <link rel="stylesheet" href="/css/bootstrap.min.css">
+
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="/css/hux-blog.min.css">
+
+    <!-- Pygments Highlight CSS -->
+    <link rel="stylesheet" href="/css/highlight.css">
+
+    <!-- Custom Fonts -->
+    <!-- <link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css" rel="stylesheet" type="text/css"> -->
+    <!-- Hux change font-awesome CDN to qiniu -->
+    <link href="https://cdn.staticfile.org/font-awesome/4.5.0/css/font-awesome.min.css" rel="stylesheet" type="text/css">
+
+
+    <!-- Hux Delete, sad but pending in China
+    <link href='http://fonts.googleapis.com/css?family=Lora:400,700,400italic,700italic' rel='stylesheet' type='text/css'>
+    <link href='http://fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800' rel='stylesheet' type='text/
+    css'>
+    -->
+
+
+    <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+        <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+        <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+
+    <!-- ga & ba script hoook -->
+    <script></script>
+</head>
+
+
+<!-- hack iOS CSS :active style -->
+<body ontouchstart="">
+
+    <!-- Navigation -->
+<nav class="navbar navbar-default navbar-custom navbar-fixed-top">
+    <div class="container-fluid">
+        <!-- Brand and toggle get grouped for better mobile display -->
+        <div class="navbar-header page-scroll">
+            <button type="button" class="navbar-toggle">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="/">Mio4kon</a>
+        </div>
+
+        <!-- Collect the nav links, forms, and other content for toggling -->
+        <!-- Known Issue, found by Hux:
+            <nav>'s height woule be hold on by its content.
+            so, when navbar scale out, the <nav> will cover tags.
+            also mask any touch event of tags, unfortunately.
+        -->
+        <div id="huxblog_navbar">
+            <div class="navbar-collapse">
+                <ul class="nav navbar-nav navbar-right">
+                    <li>
+                        <a href="/">Home</a>
+                    </li>
+
+                    
+
+                        
+                    
+
+                        
+                        <li>
+                            <a href="/tags/">Tags</a>
+                        </li>
+                        
+                    
+
+                        
+                        <li>
+                            <a href="/about/">About</a>
+                        </li>
+                        
+                    
+
+                        
+                        <li>
+                            <a href="/archives/">Archives</a>
+                        </li>
+                        
+                    
+                    
+                </ul>
+            </div>
+        </div>
+        <!-- /.navbar-collapse -->
+    </div>
+    <!-- /.container -->
+</nav>
+<script>
+    // Drop Bootstarp low-performance Navbar
+    // Use customize navbar with high-quality material design animation
+    // in high-perf jank-free CSS3 implementation
+    var $body   = document.body;
+    var $toggle = document.querySelector('.navbar-toggle');
+    var $navbar = document.querySelector('#huxblog_navbar');
+    var $collapse = document.querySelector('.navbar-collapse');
+
+    $toggle.addEventListener('click', handleMagic)
+    function handleMagic(e){
+        if ($navbar.className.indexOf('in') > 0) {
+        // CLOSE
+            $navbar.className = " ";
+            // wait until animation end.
+            setTimeout(function(){
+                // prevent frequently toggle
+                if($navbar.className.indexOf('in') < 0) {
+                    $collapse.style.height = "0px"
+                }
+            },400)
+        }else{
+        // OPEN
+            $collapse.style.height = "auto"
+            $navbar.className += " in";
+        }
+    }
+</script>
+
+
+    <!-- Main Content -->
+    
+<!-- Image to hack wechat -->
+<!-- <img src="https://miokon.cn/img/icon_wechat.png" width="0" height="0"> -->
+<!-- <img src="{{ site.baseurl }}/{% if page.header-img %}{{ page.header-img }}{% else %}{{ site.header-img }}{% endif %}" width="0" height="0"> -->
+
+<!-- Post Header -->
+<style type="text/css">
+    header.intro-header{
+        background-image: url('/img/home-bg.jpg')
+    }
+</style>
+<header class="intro-header" >
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                <div class="post-heading">
+                    <div class="tags">
+                        
+                          <a class="tag" href="/tags/#server" title="server">server</a>
+                        
+                    </div>
+                    <h1>TAC开源框架源码浅析</h1>
+                    <h2 class="subheading">TAC</h2>
+                    <span class="meta">
+                        Posted by Mio4kon on
+                        2019-09-16
+                    </span>
+                </div>
+            </div>
+        </div>
+    </div>
+</header>
+
+<!-- Post Content -->
+<article>
+    <div class="container">
+        <div class="row">
+
+    <!-- Post Container -->
+            <div class="
+                col-lg-8 col-lg-offset-2
+                col-md-10 col-md-offset-1
+                post-container">
+
+                <h1 id="TAC相关介绍"><a href="#TAC相关介绍" class="headerlink" title="TAC相关介绍"></a>TAC相关介绍</h1><p> <a href="https://github.com/alibaba/tac" target="_blank" rel="external">https://github.com/alibaba/tac</a></p>
+<ul>
+<li>TAC (Tiny API Cloud ) 是与 tangram 配套的服务端解决方案。当然也支持脱离 tangram 使用；</li>
+<li>TAC 不是平台，也不是框架，而是一种开发模式；</li>
+</ul>
+<p>下面主要是 mark 一些源码相关的关键内容</p>
+<h1 id="生成实例"><a href="#生成实例" class="headerlink" title="生成实例"></a>生成实例</h1><p>当点击发布正式环境时,会先触发<code>RedisMsSubscriber</code> 然后发通知到 <code>DefaultMsEventHandlers</code>处理</p>
+<p><code>TacInstanceContainerService</code> 会去读取正在的容器实例:</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">public</span> TacInstanceInfo <span class="title">loadTacInstance</span><span class="params">(TacInst tacInst)</span> <span class="keyword">throws</span> Exception </span>&#123;</div><div class="line"></div><div class="line">        String msCode = tacInst.getMsCode();</div><div class="line"></div><div class="line">        ReentrantLock reentrantLock = instanceLoadLocks.get(msCode);</div><div class="line">        <span class="keyword">if</span> (reentrantLock == <span class="keyword">null</span>) &#123;</div><div class="line">            reentrantLock = <span class="keyword">new</span> ReentrantLock();</div><div class="line">            instanceLoadLocks.put(msCode, reentrantLock);</div><div class="line">        &#125;</div><div class="line">        reentrantLock.lock();</div><div class="line">        <span class="keyword">try</span> &#123;</div><div class="line">          <span class="comment">//判断 cache 中是否由 Instance</span></div><div class="line">            TacInstanceInfo existInstance = tacInstCache.getIfPresent(tacInst.getMsCode());</div><div class="line"></div><div class="line">            <span class="keyword">if</span> (existInstance == <span class="keyword">null</span>) &#123;</div><div class="line">								<span class="comment">//无实例的话,通过TacInstanceLoadService加载实例然后返回</span></div><div class="line">                TacInstanceInfo tacInstanceInfo = tacInstanceLoadService.loadTacHandler(tacInst);</div><div class="line"></div><div class="line">                <span class="keyword">assert</span> tacInstanceInfo != <span class="keyword">null</span>;</div><div class="line">                LOGGER.info(<span class="string">"TacInstanceContainer loadTacInstance , result : &#123;&#125;"</span>, tacInstanceInfo);</div><div class="line">                tacInstCache.put(msCode, tacInstanceInfo);</div><div class="line"></div><div class="line">                <span class="keyword">return</span> tacInstanceInfo;</div><div class="line">            &#125;</div><div class="line"></div><div class="line">            <span class="keyword">if</span> (StringUtils.equals(tacInst.getJarVersion(), existInstance.getJarVersion())) &#123;</div><div class="line">                LOGGER.debug(<span class="string">"the exist instance has the same jarVersion ,skip. &#123;&#125;"</span>, tacInst.getJarVersion());</div><div class="line">                LOGGER.info(<span class="string">"TacInstanceContainer loadTacInstance has been load!"</span>);</div><div class="line">                <span class="keyword">return</span> existInstance;</div><div class="line">            &#125;</div><div class="line">						<span class="comment">//当要加载的版本与 cache 不一致则重新加载</span></div><div class="line">            TacInstanceInfo tacInstanceInfo = tacInstanceLoadService.loadTacHandler(tacInst);</div><div class="line"></div><div class="line">            <span class="keyword">assert</span> tacInstanceInfo != <span class="keyword">null</span>;</div><div class="line"></div><div class="line">            LOGGER.info(<span class="string">"TacInstanceContainer loadTacInstance , result : &#123;&#125;"</span>, tacInstanceInfo);</div><div class="line">          <span class="comment">//将实例信息推到 redis</span></div><div class="line">            tacInstCache.put(msCode, tacInstanceInfo);</div><div class="line">            LOGGER.info(<span class="string">"TacInstanceContainer loadTacInstance,msCode:&#123;&#125;,instId:&#123;&#125;,oldVersilon:&#123;&#125;,newVersion:&#123;&#125;"</span>, msCode,</div><div class="line">                tacInst.getId(), existInstance.getJarVersion(), tacInstanceInfo.getJarVersion());</div><div class="line">            <span class="keyword">if</span> (existInstance != <span class="keyword">null</span>) &#123;</div><div class="line">              <span class="comment">//销毁老的实例</span></div><div class="line">                <span class="keyword">this</span>.disposeInstance(existInstance);</div><div class="line">            &#125;</div><div class="line">            <span class="keyword">return</span> tacInstanceInfo;</div><div class="line">        &#125; <span class="keyword">finally</span> &#123;</div><div class="line">            reentrantLock.unlock();</div><div class="line">        &#125;</div><div class="line"></div><div class="line">    &#125;</div></pre></td></tr></table></figure>
+<p>主要做了下面几件事:</p>
+<ol>
+<li>判断 cache 中是否由 Instance</li>
+<li>无实例的话,通过TacInstanceLoadService加载实例然后返回</li>
+<li>当要加载的版本与 cache 不一致则重新加载</li>
+<li>将实例信息推到 redis</li>
+<li>销毁老的实例</li>
+</ol>
+<p>加载实例具体实现:</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">public</span> TacInstanceInfo <span class="title">loadTacHandler</span><span class="params">(TacInst tacInst)</span> <span class="keyword">throws</span> Exception </span>&#123;</div><div class="line"></div><div class="line">        LOGGER.info(<span class="string">"TacInstanceLoader.loadTacHandler start,tacMs:&#123;&#125;"</span>, tacInst);</div><div class="line">        <span class="keyword">if</span> (tacInst == <span class="keyword">null</span>) &#123;</div><div class="line">            <span class="keyword">return</span> <span class="keyword">null</span>;</div><div class="line">        &#125;</div><div class="line">        </div><div class="line">        TacInstanceInfo tacInstanceInfo = <span class="keyword">new</span> TacInstanceInfo();</div><div class="line">        <span class="keyword">long</span> instId = tacInst.getId();</div><div class="line">			  <span class="comment">// 通过实例 id 获取二进制</span></div><div class="line">        <span class="keyword">byte</span>[] bytes = remoteMsInstFileService.getInstanceFile(tacInst.getId());</div><div class="line"></div><div class="line">        tacInstanceInfo.setJarVersion(tacInst.getJarVersion());</div><div class="line">        tacInstanceInfo.setId(instId);</div><div class="line"></div><div class="line">        LOGGER.info(<span class="string">"TacInstanceLoader.loadTacHandler,msCode:&#123;&#125;,instId:&#123;&#125;,jarVersion:&#123;&#125;"</span>, tacInst.getMsCode(), instId,</div><div class="line">            tacInst.getJarVersion());</div><div class="line"></div><div class="line">        <span class="keyword">if</span> (bytes == <span class="keyword">null</span> || StringUtils.isEmpty(tacInstanceInfo.getJarVersion())) &#123;</div><div class="line">            <span class="keyword">throw</span> <span class="keyword">new</span> IllegalStateException(<span class="string">"can't get jar file . instId:"</span> + tacInst.getId());</div><div class="line">        &#125;</div><div class="line">				<span class="comment">//存储到本地</span></div><div class="line">        localMsInstFileService.saveInstanceFile(tacInst, bytes);</div><div class="line">				<span class="comment">//使用CustomerClassLoader去 load 具体实现的 TacHandler</span></div><div class="line">        Class&lt;TacHandler&gt; clazz = codeLoadService.loadHandlerClass(instId, TacHandler.class);</div><div class="line">        <span class="keyword">if</span> (clazz == <span class="keyword">null</span>) &#123;</div><div class="line">            LOGGER.error(<span class="string">"can't find  the calss &#123;&#125; from source. instId:&#123;&#125;"</span>, TacHandler.class.getCanonicalName(),</div><div class="line">                instId);</div><div class="line">            <span class="keyword">throw</span> <span class="keyword">new</span> IllegalStateException(<span class="string">"can't find  the TacHandler.calss from source. instId:"</span> + tacInst.getId());</div><div class="line">        &#125;</div><div class="line">  			<span class="comment">//生成TacHandler实例</span></div><div class="line">        TacHandler tacHandler = clazz.newInstance();</div><div class="line"></div><div class="line">        LOGGER.info(</div><div class="line">            <span class="string">"InitializingHandler init class : "</span> + tacHandler.getClass() + <span class="string">" , isInit :"</span> + InitializingHandler.class</div><div class="line">                .isAssignableFrom(tacHandler.getClass()));</div><div class="line"></div><div class="line">        <span class="comment">//如果tacHandler也实现了InitializingHandler接口,则执行afterPropertiesSet方法</span></div><div class="line">        <span class="keyword">if</span> (InitializingHandler.class.isAssignableFrom(tacHandler.getClass())) &#123;</div><div class="line">            InitializingHandler initializingHandler = (InitializingHandler)tacHandler;</div><div class="line">            LOGGER.info(<span class="string">"InitializingHandler init : "</span> + initializingHandler.getClass());</div><div class="line">            initializingHandler.afterPropertiesSet();</div><div class="line">        &#125;</div><div class="line">        tacInstanceInfo.setTacHandler(tacHandler);</div><div class="line"></div><div class="line">        LOGGER.info(<span class="string">"TacInstanceLoader.loadTacHandler,instId &#123;&#125; end .."</span>, instId);</div><div class="line">				<span class="comment">//所有内容放在tacInstanceInfo中返回</span></div><div class="line">        <span class="keyword">return</span> tacInstanceInfo;</div><div class="line">    &#125;</div></pre></td></tr></table></figure>
+<p>具体做了下面几件事:</p>
+<ol>
+<li>通过实例 id 获取二进制</li>
+<li>存储到本地</li>
+<li>使用CustomerClassLoader去 load 具体实现的 TacHandler</li>
+<li>生成TacHandler实例</li>
+<li>如果tacHandler也实现了InitializingHandler接口,则执行afterPropertiesSet方法</li>
+<li>所有内容放在tacInstanceInfo中返回</li>
+</ol>
+<h1 id="运行实例"><a href="#运行实例" class="headerlink" title="运行实例"></a>运行实例</h1><p>控制台测试两种方式: 预发, 线上</p>
+<p>预发环境会通过 readis 获取具体的二进制文件,然后生成具体的实例,然后运行.</p>
+<p><code>TacPublishTestService#prePublishTest()</code></p>
+<p>正式环境是通过 http 请求,由<code>DefaultTacEngineService</code>接收处理</p>
+<p><code>TacPublishTestService#onlinePublishTest()</code></p>
+<p><strong>DefaultTacEngineService.class</strong></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div><div class="line">53</div><div class="line">54</div><div class="line">55</div><div class="line">56</div><div class="line">57</div><div class="line">58</div><div class="line">59</div><div class="line">60</div><div class="line">61</div><div class="line">62</div><div class="line">63</div><div class="line">64</div><div class="line">65</div><div class="line">66</div><div class="line">67</div><div class="line">68</div><div class="line">69</div><div class="line">70</div><div class="line">71</div><div class="line">72</div><div class="line">73</div><div class="line">74</div><div class="line">75</div><div class="line">76</div><div class="line">77</div><div class="line">78</div><div class="line">79</div><div class="line">80</div><div class="line">81</div><div class="line">82</div><div class="line">83</div><div class="line">84</div><div class="line">85</div><div class="line">86</div><div class="line">87</div><div class="line">88</div><div class="line">89</div><div class="line">90</div><div class="line">91</div><div class="line">92</div><div class="line">93</div><div class="line">94</div><div class="line">95</div><div class="line">96</div><div class="line">97</div></pre></td><td class="code"><pre><div class="line"></div><div class="line">  </div><div class="line"> <span class="meta">@Override</span></div><div class="line"><span class="keyword">public</span> TacResult&lt;Map&lt;String, Object&gt;&gt; execute(String msCode, TacParams params) &#123;</div><div class="line"></div><div class="line">    <span class="comment">/** 参数校验 **/</span></div><div class="line">    TacResult&lt;Map&lt;String, Object&gt;&gt; result = <span class="keyword">new</span> TacResult&lt;&gt;(Collections.EMPTY_MAP);</div><div class="line">    <span class="keyword">if</span> (params == <span class="keyword">null</span> || StringUtils.isEmpty(params.getAppName())) &#123;</div><div class="line">        TacLogUtils.warnRate(LOGGER, <span class="string">"&#123;&#125;^&#123;&#125;^&#123;&#125;^&#123;&#125;^&#123;&#125;"</span>, params.getAppName(), params.getMsCodes(), params.isBatch(),</div><div class="line">            <span class="number">0</span>, params.getParamMap());</div><div class="line">        <span class="keyword">return</span> TacResult.errorResult(<span class="string">"PARAM_ERROR"</span>, <span class="string">"app name should not be empty..."</span>);</div><div class="line">    &#125;</div><div class="line">    <span class="keyword">if</span> (params == <span class="keyword">null</span> || StringUtils.isEmpty(params.getMsCodes())) &#123;</div><div class="line">        TacLogUtils.warnRate(LOGGER, <span class="string">"&#123;&#125;^&#123;&#125;^&#123;&#125;^&#123;&#125;^&#123;&#125;"</span>, params.getAppName(), params.getMsCodes(), params.isBatch(),</div><div class="line">            <span class="number">0</span>, params.getParamMap());</div><div class="line">        <span class="keyword">return</span> TacResult.errorResult(<span class="string">"PARAM_ERROR"</span>, <span class="string">"msCodes should not be empty..."</span>);</div><div class="line">    &#125;</div><div class="line">    <span class="comment">/** set context param **/</span></div><div class="line">    TacRequestContext context = <span class="keyword">new</span> TacRequestContext();</div><div class="line">    <span class="keyword">this</span>.setTacContext(context, params);</div><div class="line">    <span class="comment">// debug param</span></div><div class="line">    String debug = String.valueOf(params.getParamValue(TacContants.DEBUG));</div><div class="line">    Map&lt;String, Object&gt; resultDataMap = <span class="keyword">new</span> HashMap&lt;&gt;();</div><div class="line"></div><div class="line">    Map&lt;String, Object&gt; singleDateMap = <span class="keyword">new</span> HashMap&lt;&gt;();</div><div class="line">    <span class="keyword">long</span> singleStartTime = System.currentTimeMillis();</div><div class="line"></div><div class="line">    <span class="keyword">try</span> &#123;</div><div class="line">        TacThreadLocals.clear();</div><div class="line"></div><div class="line">        Map&lt;String, Object&gt; tacParams = <span class="keyword">new</span> HashMap&lt;&gt;(<span class="number">5</span>);</div><div class="line">        <span class="keyword">if</span> (params.getParamValue(TacContants.IP) != <span class="keyword">null</span>) &#123;</div><div class="line">            tacParams.put(TacContants.IP, params.getParamValue(TacContants.IP));</div><div class="line">        &#125;</div><div class="line">        tacParams.put(TacContants.MS_CODE, msCode);</div><div class="line">        <span class="keyword">if</span> (params.getParamValue(TacContants.DEBUG) != <span class="keyword">null</span>) &#123;</div><div class="line">            tacParams.put(TacContants.DEBUG, String.valueOf(params.getParamValue(TacContants.DEBUG)));</div><div class="line">        &#125;</div><div class="line"></div><div class="line">        TacThreadLocals.TAC_PARAMS.set(tacParams);</div><div class="line"></div><div class="line">        TacInstanceInfo tacInstanceInfo = instanceContainerService.getInstanceFromCache(msCode);</div><div class="line"></div><div class="line">        <span class="keyword">if</span> (tacInstanceInfo == <span class="keyword">null</span>) &#123;</div><div class="line">            <span class="keyword">this</span>.setCommonFields(singleDateMap, msCode, <span class="string">"NOT_EXIST"</span>, msCode + <span class="string">": the inst is not exist..."</span>, <span class="keyword">false</span>, debug);</div><div class="line">            resultDataMap.put(msCode, singleDateMap);</div><div class="line">            result.setData(resultDataMap);</div><div class="line">            <span class="keyword">return</span> result;</div><div class="line">        &#125;</div><div class="line"></div><div class="line">        context.setMsCode(msCode);</div><div class="line">        context.setInstId(tacInstanceInfo.getId());</div><div class="line"></div><div class="line">        <span class="comment">//======== 这里是正在执行实现的过程 ========</span></div><div class="line">        TacResult&lt;?&gt; singleResult = <span class="keyword">null</span>;</div><div class="line">        TacHandler tacHandler = tacInstanceInfo.getTacHandler();</div><div class="line">        singleResult = tacHandler.execute(context);</div><div class="line">        <span class="comment">/** the result **/</span></div><div class="line">        <span class="keyword">if</span> (singleResult != <span class="keyword">null</span> &amp;&amp; singleResult.isSuccess()) &#123;</div><div class="line">            <span class="keyword">this</span>.setCommonFields(singleDateMap, msCode, singleResult.getMsgCode(), singleResult.getMsgInfo(),</div><div class="line">                singleResult.isSuccess(), debug);</div><div class="line">            <span class="keyword">if</span> (singleResult.getHasMore() != <span class="keyword">null</span>) &#123;</div><div class="line">                singleDateMap.put(<span class="string">"hasMore"</span>, singleResult.getHasMore());</div><div class="line">            &#125;</div><div class="line">            singleDateMap.put(<span class="string">"data"</span>, singleResult.getData());</div><div class="line">            resultDataMap.put(msCode, singleDateMap);</div><div class="line">        &#125; <span class="keyword">else</span> &#123;</div><div class="line">            <span class="keyword">this</span>.setCommonFields(singleDateMap, msCode, singleResult.getMsgCode(), singleResult.getMsgInfo(),</div><div class="line">                singleResult.isSuccess(), debug);</div><div class="line">            singleDateMap.put(<span class="string">"data"</span>, singleResult.getData());</div><div class="line">            resultDataMap.put(msCode, singleDateMap);</div><div class="line">        &#125;</div><div class="line"></div><div class="line">    &#125; <span class="keyword">catch</span> (Exception e) &#123;</div><div class="line">        singleDateMap.put(<span class="string">"msCode"</span>, msCode);</div><div class="line">        singleDateMap.put(<span class="string">"errorCode"</span>, <span class="string">"MicroService_EXCEPTION"</span>);</div><div class="line">        TACLOG.error(</div><div class="line">            <span class="string">"-------------------------------------------------------------------------------------YourCode "</span></div><div class="line">                + <span class="string">"Exception--------------------------------------------------------------------------------"</span>,</div><div class="line">            e);</div><div class="line">        singleDateMap.put(<span class="string">"errorMsg"</span>, msCode + <span class="string">" error , please check your code"</span>);</div><div class="line">        singleDateMap.put(<span class="string">"ip"</span>, TacIPUtils.getLocalIp());</div><div class="line">        singleDateMap.put(<span class="string">"success"</span>, <span class="keyword">false</span>);</div><div class="line">        resultDataMap.put(msCode, singleDateMap);</div><div class="line"></div><div class="line">    &#125; <span class="keyword">finally</span> &#123;</div><div class="line">        <span class="keyword">if</span> (<span class="string">"true"</span>.equalsIgnoreCase(debug)) &#123;</div><div class="line">            result.setMsgInfo(TACLOG.getContent());</div><div class="line">        &#125;</div><div class="line">        LOGGER.info(<span class="string">"Single^&#123;&#125;^&#123;&#125;^&#123;&#125;^&#123;&#125;"</span>, params.getAppName(), context.getMsCode(), <span class="keyword">false</span>,</div><div class="line">            System.currentTimeMillis() - singleStartTime);</div><div class="line">        TacThreadLocals.clear();</div><div class="line">    &#125;</div><div class="line">    result.setData(resultDataMap);</div><div class="line">    <span class="keyword">return</span> result;</div><div class="line"></div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>总体来说 TAC 开源版的框架功能还是比较精简. 实现基本功能.</p>
+
+
+                <hr>
+
+                
+
+                <ul class="pager">
+                    
+                    
+                        <li class="next">
+                            <a href="/2019/08/11/深入浅析 Linux IO模型/" data-toggle="tooltip" data-placement="top" title="深入浅析 Linux IO模型相关内容">Next Post &rarr;</a>
+                        </li>
+                    
+                </ul>
+
+                
+
+                
+                <!-- disqus 评论框 start -->
+                <div class="comment">
+                    <div id="disqus_thread" class="disqus-thread"></div>
+                </div>
+                <!-- disqus 评论框 end -->
+                
+
+            </div>
+    <!-- Side Catalog Container -->
+        
+            <div class="
+                col-lg-2 col-lg-offset-0
+                visible-lg-block
+                sidebar-container
+                catalog-container">
+                <div class="side-catalog">
+                    <hr class="hidden-sm hidden-xs">
+                    <h5>
+                        <a class="catalog-toggle" href="#">CATALOG</a>
+                    </h5>
+                    <ul class="catalog-body"></ul>
+                </div>
+            </div>
+        
+
+    <!-- Sidebar Container -->
+
+            <div class="
+                col-lg-8 col-lg-offset-2
+                col-md-10 col-md-offset-1
+                sidebar-container">
+
+                <!-- Featured Tags -->
+                
+                <section>
+                    <!-- no hr -->
+                    <h5><a href="/tags/">FEATURED TAGS</a></h5>
+                    <div class="tags">
+                       
+                          <a class="tag" href="/tags/#server" title="server">server</a>
+                        
+                    </div>
+                </section>
+                
+
+                <!-- Friends Blog -->
+                
+                <hr>
+                <h5>FRIENDS</h5>
+                <ul class="list-inline">
+
+                    
+                        <li><a href="http://lrd.ele.me/" target="_blank">lrd ele&#39;s Blog</a></li>
+                    
+                </ul>
+                
+            </div>
+
+        </div>
+    </div>
+</article>
+
+
+
+
+<!-- disqus 公共JS代码 start (一个网页只需插入一次) -->
+<script type="text/javascript">
+    /* * * CONFIGURATION VARIABLES * * */
+    var disqus_shortname = "hexo-theme-huxblog";
+    var disqus_identifier = "https://miokon.cn/2019/09/16/TAC开源框架源码浅析/";
+    var disqus_url = "https://miokon.cn/2019/09/16/TAC开源框架源码浅析/";
+
+    (function() {
+        var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+        dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+        (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    })();
+</script>
+<!-- disqus 公共JS代码 end -->
+
+
+
+
+<!-- async load function -->
+<script>
+    function async(u, c) {
+      var d = document, t = 'script',
+          o = d.createElement(t),
+          s = d.getElementsByTagName(t)[0];
+      o.src = u;
+      if (c) { o.addEventListener('load', function (e) { c(null, e); }, false); }
+      s.parentNode.insertBefore(o, s);
+    }
+</script>
+<!-- anchor-js, Doc:http://bryanbraun.github.io/anchorjs/ -->
+<script>
+    async("https://cdn.bootcss.com/anchor-js/1.1.1/anchor.min.js",function(){
+        anchors.options = {
+          visible: 'always',
+          placement: 'right',
+          icon: '#'
+        };
+        anchors.add().remove('.intro-header h1').remove('.subheading').remove('.sidebar-container h5');
+    })
+</script>
+<style>
+    /* place left on bigger screen */
+    @media all and (min-width: 800px) {
+        .anchorjs-link{
+            position: absolute;
+            left: -0.75em;
+            font-size: 1.1em;
+            margin-top : -0.1em;
+        }
+    }
+</style>
+
+
+
+    <!-- Footer -->
+    <!-- Footer -->
+<footer>
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                <ul class="list-inline text-center">
+                
+                
+                
+
+                
+                    <li>
+                        <a target="_blank" href="http://weibo.com/u/3198010790">
+                            <span class="fa-stack fa-lg">
+                                <i class="fa fa-circle fa-stack-2x"></i>
+                                <i class="fa fa-weibo fa-stack-1x fa-inverse"></i>
+                            </span>
+                        </a>
+                    </li>
+                
+
+                
+
+                
+                    <li>
+                        <a target="_blank"  href="https://github.com/Mio4kon">
+                            <span class="fa-stack fa-lg">
+                                <i class="fa fa-circle fa-stack-2x"></i>
+                                <i class="fa fa-github fa-stack-1x fa-inverse"></i>
+                            </span>
+                        </a>
+                    </li>
+                
+
+                
+
+                </ul>
+                <p class="copyright text-muted">
+                    Copyright &copy; Mio4kon 2020 
+                    <br>
+                    Theme by <a href="http://huangxuan.me">Hux</a> 
+                    <span style="display: inline-block; margin: 0 5px;">
+                        <i class="fa fa-heart"></i>
+                    </span> 
+                    Ported by <a href="http://blog.kaijun.rocks">Kaijun</a> | 
+                    <iframe
+                        style="margin-left: 2px; margin-bottom:-5px;"
+                        frameborder="0" scrolling="0" width="91px" height="20px"
+                        src="https://ghbtns.com/github-btn.html?user=kaijun&repo=hexo-theme-huxblog&type=star&count=true" >
+                    </iframe>
+                </p>
+            </div>
+        </div>
+    </div>
+</footer>
+
+<!-- jQuery -->
+<script src="/js/jquery.min.js"></script>
+
+<!-- Bootstrap Core JavaScript -->
+<script src="/js/bootstrap.min.js"></script>
+
+<!-- Custom Theme JavaScript -->
+<script src="/js/hux-blog.min.js"></script>
+
+
+<!-- async load function -->
+<script>
+    function async(u, c) {
+      var d = document, t = 'script',
+          o = d.createElement(t),
+          s = d.getElementsByTagName(t)[0];
+      o.src = u;
+      if (c) { o.addEventListener('load', function (e) { c(null, e); }, false); }
+      s.parentNode.insertBefore(o, s);
+    }
+</script>
+
+<!-- 
+     Because of the native support for backtick-style fenced code blocks 
+     right within the Markdown is landed in Github Pages, 
+     From V1.6, There is no need for Highlight.js, 
+     so Huxblog drops it officially.
+
+     - https://github.com/blog/2100-github-pages-now-faster-and-simpler-with-jekyll-3-0  
+     - https://help.github.com/articles/creating-and-highlighting-code-blocks/    
+-->
+<!--
+    <script>
+        async("http://cdn.bootcss.com/highlight.js/8.6/highlight.min.js", function(){
+            hljs.initHighlightingOnLoad();
+        })
+    </script>
+    <link href="http://cdn.bootcss.com/highlight.js/8.6/styles/github.min.css" rel="stylesheet">
+-->
+
+
+<!-- jquery.tagcloud.js -->
+<script>
+    // only load tagcloud.js in tag.html
+    if($('#tag_cloud').length !== 0){
+        async("https://miokon.cn/js/jquery.tagcloud.js",function(){
+            $.fn.tagcloud.defaults = {
+                //size: {start: 1, end: 1, unit: 'em'},
+                color: {start: '#bbbbee', end: '#0085a1'},
+            };
+            $('#tag_cloud a').tagcloud();
+        })
+    }
+</script>
+
+<!--fastClick.js -->
+<script>
+    async("https://cdn.bootcss.com/fastclick/1.0.6/fastclick.min.js", function(){
+        var $nav = document.querySelector("nav");
+        if($nav) FastClick.attach($nav);
+    })
+</script>
+
+
+<!-- Google Analytics -->
+
+
+
+
+<!-- Baidu Tongji -->
+
+
+<!-- Side Catalog -->
+
+<script type="text/javascript">
+    function generateCatalog (selector) {
+        var P = $('div.post-container'),a,n,t,l,i,c;
+        a = P.find('h1,h2,h3,h4,h5,h6');
+        a.each(function () {
+            n = $(this).prop('tagName').toLowerCase();
+            i = "#"+$(this).prop('id');
+            t = $(this).text();
+            c = $('<a href="'+i+'" rel="nofollow">'+t+'</a>');
+            l = $('<li class="'+n+'_nav"></li>').append(c);
+            $(selector).append(l);
+        });
+        return true;    
+    }
+
+    generateCatalog(".catalog-body");
+
+    // toggle side catalog
+    $(".catalog-toggle").click((function(e){
+        e.preventDefault();
+        $('.side-catalog').toggleClass("fold")
+    }))
+
+    /*
+     * Doc: https://github.com/davist11/jQuery-One-Page-Nav
+     * Fork by Hux to support padding
+     */
+    async("/js/jquery.nav.js", function () {
+        $('.catalog-body').onePageNav({
+            currentClass: "active",
+            changeHash: !1,
+            easing: "swing",
+            filter: "",
+            scrollSpeed: 700,
+            scrollOffset: 0,
+            scrollThreshold: .2,
+            begin: null,
+            end: null,
+            scrollChange: null,
+            padding: 80
+        });
+    });
+</script>
+
+
+
+
+
+<!-- Image to hack wechat -->
+<img src="https://miokon.cn/img/icon_wechat.png" width="0" height="0" />
+<!-- Migrate from head to bottom, no longer block render and still work -->
+
+</body>
+
+</html>

@@ -90,7 +90,7 @@
 
                         
                         <li>
-                            <a href="/archives/">Archives</a>
+                            <a href="/tags/">Tags</a>
                         </li>
                         
                     
@@ -104,7 +104,7 @@
 
                         
                         <li>
-                            <a href="/tags/">Tags</a>
+                            <a href="/archives/">Archives</a>
                         </li>
                         
                     
@@ -181,6 +181,33 @@
             
                 <!-- Main Content -->
 
+
+<div class="post-preview">
+
+    <a href="/2019/09/16/TAC开源框架源码浅析/">
+        <h2 class="post-title">
+            TAC开源框架源码浅析
+        </h2>
+        <h3 class="post-subtitle">
+            TAC
+        </h3>
+        <div class="post-content-preview">
+            TAC相关介绍 https://github.com/alibaba/tac
+
+TAC (Tiny API Cloud ) 是与 tangram 配套的服务端解决方案。当然也支持脱离 tangram 使用；
+TAC 不是平台，也不是框架，而是一种开发模式；
+
+下面主要是 mark 一些源码相关的关键内容
+生成实例当点击发布正式环境时,会先触发RedisMsSubscriber 然后发通知到 ......
+        </div>
+    </a>
+    <p class="post-meta">
+        Posted by Mio4kon on
+        2019-09-16
+    </p>
+
+</div>
+<hr>
 
 <div class="post-preview">
 
@@ -442,35 +469,6 @@ automationName是告诉 Appium Server是用什么方式来操作UI元素的.对�
 </div>
 <hr>
 
-<div class="post-preview">
-
-    <a href="/2017/04/13/移动端自动化测试系列之五——AppiumLich框架使用/">
-        <h2 class="post-title">
-            移动端自动化测试系列之五——AppiumLich框架使用
-        </h2>
-        <h3 class="post-subtitle">
-            AppiumLich框架使用
-        </h3>
-        <div class="post-content-preview">
-            前言经历了前面一系列的教程,相信你一定跃跃一试了,本篇教程将告诉你如何使用框架(appium-Lich)来进行移动端的自动化测试.
-Let’s go
-项目结构先看下项目的目录结构
-
-
-apk 文件夹下放置想测试的 *.apk 文件
-data/config.ini文件中需要修改[name]与[account]中的内容
-data/page.yaml文件就是系列四中提到的定位元素的文件
-test/......
-        </div>
-    </a>
-    <p class="post-meta">
-        Posted by Mio4kon on
-        2017-04-13
-    </p>
-
-</div>
-<hr>
-
 
 
 <!-- Pager -->
@@ -512,6 +510,10 @@ test/......
                             
                         
                             
+                        
+                            
+                        
+                            
                             <a href="/tags/#移动自动化测试" title="移动自动化测试" rel="8">移动自动化测试</a>
                             
                         
@@ -525,10 +527,6 @@ test/......
                         
                             
                             <a href="/tags/#Kotlin" title="Kotlin" rel="2">Kotlin</a>
-                            
-                        
-                            
-                        
                             
                         
                             
@@ -552,9 +550,11 @@ test/......
                             
                         
                             
-                            <a href="/tags/#Head First,设计模式" title="Head First,设计模式" rel="2">Head First,设计模式</a>
+                        
                             
                         
+                            
+                            <a href="/tags/#Head First,设计模式" title="Head First,设计模式" rel="2">Head First,设计模式</a>
                             
                         
                             
